@@ -8,29 +8,43 @@
 import SwiftUI
 import RealityKit
 
+struct ButtonDissolveTransition: ViewModifier {
+    let isPresented: Bool
+    let center: CGPoint
+
+    func body(content: Content) -> some View {
+        content
+            .mask(
+                GeometryReader { geometry in
+                    Circle()
+                        .scale(isPresented ? 3.5 : 0.001)
+                        .position(center)
+                        .animation(.easeInOut(duration: 0.4), value: isPresented)
+                }
+            )
+    }
+}
+
 struct ContentView : View {
+    @State private var showAR = false
+    @State private var buttonCenter: CGPoint = .zero
 
     var body: some View {
-        RealityView { content in
+        NavigationView {
+            ZStack {
+                MenuView(showAR: $showAR, buttonCentre: $buttonCenter)
 
-            // Create a cube model
-            let model = Entity()
-            let mesh = MeshResource.generateBox(size: 0.1, cornerRadius: 0.005)
-            let material = SimpleMaterial(color: .gray, roughness: 0.15, isMetallic: true)
-            model.components.set(ModelComponent(mesh: mesh, materials: [material]))
-            model.position = [0, 0.05, 0]
-
-            // Create horizontal plane anchor for the content
-            let anchor = AnchorEntity(.plane(.horizontal, classification: .any, minimumBounds: SIMD2<Float>(0.2, 0.2)))
-            anchor.addChild(model)
-
-            // Add the horizontal plane anchor to the scene
-            content.add(anchor)
-
-            content.camera = .spatialTracking
-
+                if showAR {
+                    GameView(showAR: $showAR)
+                        .modifier(
+                            ButtonDissolveTransition(
+                                isPresented: showAR,
+                                center: buttonCenter
+                            )
+                        )
+                }
+            }
         }
-        .edgesIgnoringSafeArea(.all)
     }
 
 }
