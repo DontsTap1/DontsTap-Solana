@@ -1,7 +1,14 @@
+//
+//  SuccessView.swift
+//  ARCryptoApp
+//
+//  Created by Ivan Tkachenko on 26.02.2025.
+//
+
 import SwiftUI
 
-/// Reusable Error View Modifier
-struct ErrorViewModifier: ViewModifier {
+/// Reusable Success View Modifier
+struct SuccessViewModifier: ViewModifier {
     @Binding var isPresented: Bool
     let title: String
     let message: String?
@@ -22,12 +29,12 @@ struct ErrorViewModifier: ViewModifier {
                             VisualEffectBlur(style: .systemUltraThinMaterial)
                                 .ignoresSafeArea()
 
-                            // Error modal
+                            // Success modal
                             VStack(spacing: 25) {
-                                Image(systemName: "xmark.circle")
+                                Image(systemName: "checkmark.circle.fill")
                                     .resizable()
-                                    .foregroundStyle(Color.red)
                                     .frame(width: 30, height: 30)
+                                    .foregroundColor(.green)
 
                                 Text(title)
                                     .font(.title2)
@@ -40,18 +47,19 @@ struct ErrorViewModifier: ViewModifier {
                                         .multilineTextAlignment(.center)
                                 }
 
-                                Button("Dismiss") {
+                                Button("OK") {
                                     isPresented = false
                                     onDismiss?()
                                 }
                                 .padding()
                                 .frame(maxWidth: 150)
-                                .background(Color.black)
+                                .background(Color.green)
                                 .foregroundColor(.white)
                                 .cornerRadius(8)
                             }
-                            .padding()
-                            .background(RoundedRectangle(cornerRadius: 16).fill(Color.orange))
+                            .padding(.horizontal, 30)
+                            .padding(.vertical)
+                            .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
                             .frame(maxWidth: 300)
                             .shadow(radius: 10)
                             .transition(.scale)
@@ -63,25 +71,9 @@ struct ErrorViewModifier: ViewModifier {
     }
 }
 
-/// SwiftUI wrapper for UIVisualEffectView to achieve a native blur effect
-struct VisualEffectBlur: UIViewRepresentable {
-    var style: UIBlurEffect.Style
-
-    func makeUIView(context: Context) -> UIVisualEffectView {
-        let view = UIVisualEffectView(effect: UIBlurEffect(style: style))
-        return view
-    }
-
-    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {}
-}
-
 /// View extension to easily apply the modifier
 extension View {
-    func errorView(isPresented: Binding<Bool>, title: String, message: String? = nil, onDismiss: (() -> Void)? = nil) -> some View {
-        self.modifier(ErrorViewModifier(isPresented: isPresented, title: title, message: message, onDismiss: onDismiss))
-    }
-
-    func errorView(isPresented: Binding<Bool>, error: UserRepresentableError, onDismiss: (() -> Void)? = nil) -> some View {
-        self.modifier(ErrorViewModifier(isPresented: isPresented, title: error.userErrorText, message: error.userErrorDescription, onDismiss: onDismiss))
+    func successView(isPresented: Binding<Bool>, title: String, message: String? = nil, onDismiss: (() -> Void)? = nil) -> some View {
+        self.modifier(SuccessViewModifier(isPresented: isPresented, title: title, message: message, onDismiss: onDismiss))
     }
 }

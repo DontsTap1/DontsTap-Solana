@@ -85,9 +85,8 @@ struct SignInView: View {
                 }
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
-#warning("Fix cancel action button")
                         Button("Cancel") {
-                            viewModel.navigationToSign.toggle()
+                            dismiss()
                         }
                         .foregroundStyle(Color.white)
                     }
@@ -95,13 +94,10 @@ struct SignInView: View {
                 .navigationDestination(isPresented: $viewModel.navigationToSign) {
                     SignUpView()
                 }
-                .customErrorAlert(
-                    error: GenericErrors.generic,
-                    isPresented: $viewModel.showErrorAlert,
-                    onDismiss: nil
-                )
+                .errorView(isPresented: $viewModel.showErrorAlert, error: GenericErrors.generic)
             }
         }
+        .interactiveDismissDisabled(true)
     }
 }
 
