@@ -8,23 +8,6 @@
 import SwiftUI
 import RealityKit
 
-struct ButtonDissolveTransition: ViewModifier {
-    let isPresented: Bool
-    let center: CGPoint
-
-    func body(content: Content) -> some View {
-        content
-            .mask(
-                GeometryReader { geometry in
-                    Circle()
-                        .scale(isPresented ? 3.5 : 0.001)
-                        .position(center)
-                        .animation(.easeInOut(duration: 0.4), value: isPresented)
-                }
-            )
-    }
-}
-
 struct ContentView : View {
     @State private var showAR = false
     @State private var buttonCenter: CGPoint = .zero
@@ -46,7 +29,23 @@ struct ContentView : View {
             }
         }
     }
+}
 
+struct ButtonDissolveTransition: ViewModifier {
+    let isPresented: Bool
+    let center: CGPoint
+
+    func body(content: Content) -> some View {
+        content
+            .mask(
+                GeometryReader { geometry in
+                    Circle()
+                        .scale(isPresented ? 3.5 : 0.001)
+                        .position(center)
+                        .animation(.easeInOut(duration: 0.4), value: isPresented)
+                }
+            )
+    }
 }
 
 #Preview {

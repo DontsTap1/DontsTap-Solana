@@ -6,6 +6,16 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CE0BA1982D3426F400B6C6AA /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = CE0BA1972D3426F400B6C6AA /* FirebaseAppCheck */; };
+		CE0BA19A2D3426F400B6C6AA /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CE0BA1992D3426F400B6C6AA /* FirebaseAuth */; };
+		CE0BA19C2D3426F400B6C6AA /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = CE0BA19B2D3426F400B6C6AA /* FirebaseCore */; };
+		CE0BA19E2D3426F400B6C6AA /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = CE0BA19D2D3426F400B6C6AA /* FirebaseDatabase */; };
+		CE0BA1A02D3426F400B6C6AA /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = CE0BA19F2D3426F400B6C6AA /* FirebaseFirestore */; };
+		CE0BA1A22D3426F400B6C6AA /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = CE0BA1A12D3426F400B6C6AA /* FirebaseStorage */; };
+		CECA09BD2D4549AA000679D1 /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = CECA09BC2D4549AA000679D1 /* Swinject */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		CEE70F342D327A4500C54F5A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +62,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE0BA1982D3426F400B6C6AA /* FirebaseAppCheck in Frameworks */,
+				CE0BA19C2D3426F400B6C6AA /* FirebaseCore in Frameworks */,
+				CECA09BD2D4549AA000679D1 /* Swinject in Frameworks */,
+				CE0BA19E2D3426F400B6C6AA /* FirebaseDatabase in Frameworks */,
+				CE0BA1A02D3426F400B6C6AA /* FirebaseFirestore in Frameworks */,
+				CE0BA19A2D3426F400B6C6AA /* FirebaseAuth in Frameworks */,
+				CE0BA1A22D3426F400B6C6AA /* FirebaseStorage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +129,13 @@
 			);
 			name = ARCryptoApp;
 			packageProductDependencies = (
+				CE0BA1972D3426F400B6C6AA /* FirebaseAppCheck */,
+				CE0BA1992D3426F400B6C6AA /* FirebaseAuth */,
+				CE0BA19B2D3426F400B6C6AA /* FirebaseCore */,
+				CE0BA19D2D3426F400B6C6AA /* FirebaseDatabase */,
+				CE0BA19F2D3426F400B6C6AA /* FirebaseFirestore */,
+				CE0BA1A12D3426F400B6C6AA /* FirebaseStorage */,
+				CECA09BC2D4549AA000679D1 /* Swinject */,
 			);
 			productName = ARCryptoApp;
 			productReference = CEE70F232D327A4200C54F5A /* ARCryptoApp.app */;
@@ -195,6 +219,10 @@
 			);
 			mainGroup = CEE70F1A2D327A4200C54F5A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CE0BA1962D3426F400B6C6AA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				CECA09BB2D4549AA000679D1 /* XCRemoteSwiftPackageReference "Swinject" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CEE70F242D327A4200C54F5A /* Products */;
 			projectDirPath = "";
@@ -396,23 +424,27 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ARCryptoApp/Preview Content\"";
+				DEVELOPMENT_TEAM = 982E46E4T5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
+				INFOPLIST_KEY_CFBundleDisplayName = DontStap;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.action-games";
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = arkit;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dontstap.ARCryptoApp;
+				MARKETING_VERSION = 1.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.steady.DontStap;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -428,23 +460,27 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ARCryptoApp/Preview Content\"";
+				DEVELOPMENT_TEAM = 982E46E4T5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
+				INFOPLIST_KEY_CFBundleDisplayName = DontStap;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.action-games";
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = arkit;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dontstap.ARCryptoApp;
+				MARKETING_VERSION = 1.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.steady.DontStap;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -560,6 +596,63 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		CE0BA1962D3426F400B6C6AA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.6.0;
+			};
+		};
+		CECA09BB2D4549AA000679D1 /* XCRemoteSwiftPackageReference "Swinject" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Swinject/Swinject";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.9.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CE0BA1972D3426F400B6C6AA /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE0BA1962D3426F400B6C6AA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+		CE0BA1992D3426F400B6C6AA /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE0BA1962D3426F400B6C6AA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		CE0BA19B2D3426F400B6C6AA /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE0BA1962D3426F400B6C6AA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		CE0BA19D2D3426F400B6C6AA /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE0BA1962D3426F400B6C6AA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
+		CE0BA19F2D3426F400B6C6AA /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE0BA1962D3426F400B6C6AA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		CE0BA1A12D3426F400B6C6AA /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE0BA1962D3426F400B6C6AA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		CECA09BC2D4549AA000679D1 /* Swinject */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CECA09BB2D4549AA000679D1 /* XCRemoteSwiftPackageReference "Swinject" */;
+			productName = Swinject;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CEE70F1B2D327A4200C54F5A /* Project object */;
 }
