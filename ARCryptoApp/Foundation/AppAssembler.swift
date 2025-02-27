@@ -46,6 +46,7 @@ class AppAssembler {
                     databaseProvider: resolver.forceResolve(DatabaseProvider.self)
                 )
             }
+            .inObjectScope(.container)
 
             container.register(AuthenticationProvider.self) { resolver in
                 return AuthenticationService(

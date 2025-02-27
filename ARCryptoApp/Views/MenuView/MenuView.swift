@@ -11,89 +11,125 @@ struct MenuView: View {
     @Binding var showAR: Bool
     @Binding var buttonCentre: CGPoint
 
-    @StateObject private var authManager = AuthenticationManager()
     @StateObject private var viewModel = MenuViewModel()
 
     var body: some View {
-        NavigationView {
-            BackgroundGradientView {
-                VStack {
-                    Spacer()
+        NavigationStack {
+            NavigationView {
+                BackgroundGradientView {
+                    VStack {
+                        Spacer()
 
-                    GeometryReader { geometry in
-                        Button {
-                            let frame = geometry.frame(in: .global)
-                            buttonCentre = CGPoint(
-                                x: frame.midX,
-                                y: frame.midY
-                            )
+                        GeometryReader { geometry in
+                            Button {
+                                let frame = geometry.frame(in: .global)
+                                buttonCentre = CGPoint(
+                                    x: frame.midX,
+                                    y: frame.midY
+                                )
 
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showAR.toggle()
-                            }
-                        } label: {
-                            Text("DONT STAP")
-                                .bold()
-                                .foregroundStyle(.white)
-                                .background {
-                                    RoundedRectangle(cornerRadius: 25)
-                                        .fill(.purple)
-                                        .frame(width: 100, height: 100)
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    showAR.toggle()
                                 }
-                        }
-                        .position(
-                            x: geometry.size.width / 2,
-                            y: geometry.size.height / 2
-                        )
-                    }
-                    .frame(height: 200)
-
-                    Spacer()
-
-                    HStack(spacing: 20) {
-                        ForEach(MenuViewModel.MenuViewAction.allCases, id: \.rawValue) { action in
-                            Button(action: {
-                                viewModel.onMenuButtonTap(action: action)
-                            }) {
-                                Circle()
-                                    .fill(Color.gray)
-                                    .frame(width: 60, height: 60)
-                                    .overlay {
-                                        switch action {
-                                        case .openProfile:
-                                            Image(systemName: "person.circle")
-                                                .foregroundColor(.white)
-                                        case .openDoubleCoin:
-                                            Image(systemName: "dollarsign.circle")
-                                                .foregroundColor(.white)
-                                        case .openCashout:
-                                            Image(systemName: "arrow.up.circle")
-                                                .foregroundColor(.white)
-                                        }
+                            } label: {
+                                Text("DONT STAP")
+                                    .bold()
+                                    .foregroundStyle(.white)
+                                    .background {
+                                        RoundedRectangle(cornerRadius: 25)
+                                            .fill(.purple)
+                                            .frame(width: 100, height: 100)
                                     }
                             }
+                            .position(
+                                x: geometry.size.width / 2,
+                                y: geometry.size.height / 2
+                            )
+                        }
+                        .frame(height: 200)
+
+                        Spacer()
+
+                        HStack(spacing: 20) {
+                            ForEach(MenuViewModel.MenuViewAction.allCases, id: \.rawValue) { action in
+                                Button(action: {
+                                    viewModel.onMenuButtonTap(action: action)
+                                }) {
+                                    Circle()
+                                        .fill(Color.gray)
+                                        .frame(width: 60, height: 60)
+                                        .overlay {
+                                            switch action {
+                                            case .openProfile:
+                                                Image(systemName: "person.circle")
+                                                    .foregroundColor(.white)
+                                            case .openDoubleCoin:
+                                                Image(systemName: "dollarsign.circle")
+                                                    .foregroundColor(.white)
+                                            case .openCashout:
+                                                Image(systemName: "arrow.up.circle")
+                                                    .foregroundColor(.white)
+                                            }
+                                        }
+                                }
+                            }
                         }
                     }
+                    .onAppear(perform: viewModel.onAppear)
                 }
-                .onAppear(perform: viewModel.onAppear)
-            }
-            .sheet(isPresented: $viewModel.showSignIn) {
-                SignInView()
-                    .environmentObject(authManager)
+                .sheet(isPresented: $viewModel.showSignIn) {
+                    SignInView()
+                }
+                .navigationDestination(isPresented: $viewModel.isPresentationActive, destination: {
+                    if let action = viewModel.presentationAction {
+                        switch action {
+                        case .openProfile:
+                            ProfileView()
+                                .withCustomBackButton()
+                        case .openDoubleCoin:
+                            CoinMultiplierView()
+                                .withCustomBackButton()
+                        case .openCashout:
+                            CashOutView()
+                                .withCustomBackButton()
+                        }
+                    }
+                })
             }
         }
-        .navigationDestination(isPresented: $viewModel.isPresentationActive, destination: {
-            if let action = viewModel.presentationAction {
-                switch action {
-                case .openProfile:
-                    ProfileView()
-                case .openDoubleCoin:
-                    CoinMultiplierView()
-                case .openCashout:
-                    CashOutView()
+        .tint(.white)
+    }
+}
+
+struct BackButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "chevron.left")
+        }
+    }
+}
+
+struct BackButtonModifier: ViewModifier {
+    @Environment(\.presentationMode) private var presentationMode
+
+    func body(content: Content) -> some View {
+        content
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    BackButton {
+                        presentationMode.wrappedValue.dismiss()
+                    }
                 }
             }
-        })
+    }
+}
+
+extension View {
+    func withCustomBackButton() -> some View {
+        modifier(BackButtonModifier())
     }
 }
 

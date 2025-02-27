@@ -11,6 +11,11 @@ import PhotosUI
 struct SignUpView: View {
     @StateObject private var viewModel = SignUpViewModel()
     @Environment(\.presentationMode) private var presentationMode
+    private var onDismiss: () -> ()
+
+    init(onDismiss: @escaping () -> ()) {
+        self.onDismiss = onDismiss
+    }
 
     var body: some View {
         BackgroundGradientView {
@@ -67,7 +72,9 @@ struct SignUpView: View {
             }
             .loadingView(isPresented: $viewModel.isLoading)
             .errorView(isPresented: $viewModel.signUpErrorPresented, error: viewModel.signUpError)
-            .successView(isPresented: $viewModel.successMessagePresented, title: viewModel.successMessageText)
+            .successView(isPresented: $viewModel.successMessagePresented, title: viewModel.successMessageText, onDismiss: {
+                onDismiss()
+            })
             .navigationBarBackButtonHidden()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -85,5 +92,7 @@ struct SignUpView: View {
 }
 
 #Preview {
-    SignUpView()
+    SignUpView {
+        // no dimiss
+    }
 }

@@ -8,23 +8,9 @@
 import AuthenticationServices
 import SwiftUI
 
-// MARK: - Auth State
-class AuthenticationManager: ObservableObject {
-    @Published var isAuthenticated = false
-
-    func signIn(email: String, password: String) {
-        // Implement your authentication logic here
-        isAuthenticated = true
-    }
-
-    func signOut() {
-        isAuthenticated = false
-    }
-}
-
 struct SignInView: View {
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var authManager: AuthenticationManager
+    
     @State private var email = ""
     @State private var password = ""
     @StateObject private var viewModel = SignInViewModel()
@@ -97,7 +83,9 @@ struct SignInView: View {
                 }
             }
             .navigationDestination(isPresented: $viewModel.navigationToSign, destination: {
-                SignUpView()
+                SignUpView {
+                    dismiss()
+                }
             })
             .interactiveDismissDisabled(true)
         }

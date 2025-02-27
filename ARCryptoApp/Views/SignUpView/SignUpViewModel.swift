@@ -55,8 +55,8 @@ class SignUpViewModel: ObservableObject {
     @Published var successMessageText = ""
 
     // MARK: - Injected properties
-//    @Inject
-    private var authenticationProvider: AuthenticationProvider = MockAppAuthProvider()
+    @Inject
+    private var authenticationProvider: AuthenticationProvider
 
     // MARK: - Private properties
     private var cancellableSignUp: AnyCancellable?
