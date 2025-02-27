@@ -17,9 +17,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         AppCheck.setAppCheckProviderFactory(AppCheckService())
         FirebaseApp.configure()
 
-        UINavigationBar.appearance().backIndicatorImage = UIImage(systemName: "chevron.left")
-        UINavigationBar.appearance().backIndicatorTransitionMaskImage = UIImage(systemName: "chevron.left")
-
         return true
     }
 }

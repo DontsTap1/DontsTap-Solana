@@ -90,7 +90,7 @@ class SignUpViewModel: ObservableObject {
             signUpErrorPresented = true
             return
         }
-        let nickname = nickname.trimmingCharacters(in: .alphanumerics)
+        let nickname = nickname.trimmingCharacters(in: .whitespacesAndNewlines)
         isLoading = true
 
         cancellableSignUp = authenticationProvider.authenticateSession(

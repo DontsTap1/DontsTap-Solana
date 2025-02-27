@@ -97,7 +97,6 @@ struct MenuView: View {
                 })
             }
         }
-        .tint(.white)
     }
 }
 
@@ -124,6 +123,7 @@ struct BackButtonModifier: ViewModifier {
                     }
                 }
             }
+            .tint(.white)
     }
 }
 
