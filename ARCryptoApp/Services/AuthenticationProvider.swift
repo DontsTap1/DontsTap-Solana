@@ -46,7 +46,7 @@ class AuthenticationService: AuthenticationProvider {
         self.userSessionProvider = userSessionProvider
         self.coinCollectStoreProvider = coinCollectStoreProvider
     }
-
+#warning("add call of this to the app launch")
     func authenticationAppLaunch() {
         if let authToken = userSessionProvider.authToken {
             let appleIDProvider = ASAuthorizationAppleIDProvider()

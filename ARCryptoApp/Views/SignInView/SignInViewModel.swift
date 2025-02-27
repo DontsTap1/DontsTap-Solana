@@ -17,15 +17,24 @@ class SignInViewModel: ObservableObject {
 
     @Published var navigationToSign: Bool = false
     @Published var showErrorAlert = false
+    @Published var isLoading = false
 
     private var cancellable: Set<AnyCancellable> = []
 
     func onAuthenticationRequest(_ authorizationResult: (Result<ASAuthorization, any Error>)) {
         switch authorizationResult {
         case .success(let authorization):
+            isLoading = true
             authenticationProvider.authenticate(with: authorization)
-                .sink { completion in
-                    return
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] completion in
+                    self?.isLoading = false
+                    switch completion {
+                    case .finished:
+                        break
+                    case .failure:
+                        self?.showErrorAlert.toggle()
+                    }
                 } receiveValue: { [weak self] status in
                     guard let self else {
                         return
@@ -39,9 +48,8 @@ class SignInViewModel: ObservableObject {
                     }
                 }
                 .store(in: &cancellable)
-        case .failure(let failure):
+        case .failure:
             showErrorAlert.toggle()
-            break
         }
     }
 }

@@ -30,74 +30,77 @@ struct SignInView: View {
     @StateObject private var viewModel = SignInViewModel()
 
     var body: some View {
-        NavigationView {
-            BackgroundGradientView {
-                VStack {
-                    Spacer()
+        NavigationStack {
+            NavigationView {
+                BackgroundGradientView {
+                    VStack {
+                        Spacer()
 
-                    // Coin icon and count
-                    VStack(spacing: 5) {
-                        Image(systemName: "bitcoinsign.circle.fill")
-                            .resizable()
-                            .frame(width: 60, height: 60)
-                            .foregroundColor(.yellow)
+                        // Coin icon and count
+                        VStack(spacing: 5) {
+                            Image(systemName: "bitcoinsign.circle.fill")
+                                .resizable()
+                                .frame(width: 60, height: 60)
+                                .foregroundColor(.yellow)
 
-                        Text("0")
-                            .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(.yellow)
-                    }
+                            Text("0")
+                                .font(.system(size: 24, weight: .bold))
+                                .foregroundColor(.yellow)
+                        }
 
-                    Spacer()
+                        Spacer()
 
-                    // Description text
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("After sign in you will be able:")
-                            .font(.title2)
-                            .bold()
-                            .foregroundColor(.white)
-
-                        ForEach([
-                            "Store your collected coins on cloud",
-                            "Get access to coin doubler",
-                            "Upload your photo",
-                            "Appear on the score record table"
-                        ], id: \.self) { item in
-                            Text("- \(item)")
-                                .font(.body)
+                        // Description text
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text("After sign in you will be able:")
+                                .font(.title2)
+                                .bold()
                                 .foregroundColor(.white)
+
+                            ForEach([
+                                "Store your collected coins on cloud",
+                                "Get access to coin doubler",
+                                "Upload your photo",
+                                "Appear on the score record table"
+                            ], id: \.self) { item in
+                                Text("- \(item)")
+                                    .font(.body)
+                                    .foregroundColor(.white)
+                            }
                         }
-                    }
-                    .padding(.horizontal, 20)
+                        .padding(.horizontal, 20)
 
-                    Spacer()
+                        Spacer()
 
-                    // Sign in button
-                    SignInWithAppleButton { appleIdRequest in
-                        appleIdRequest.requestedScopes = [.email]
-                    } onCompletion: { result in
-                        viewModel.onAuthenticationRequest(result)
-                    }
-                    .signInWithAppleButtonStyle(.white)
-                    .frame(height: 50)
-                    .padding(.horizontal, 20)
-
-                    Spacer(minLength: 20)
-                }
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button("Cancel") {
-                            dismiss()
+                        // Sign in button
+                        SignInWithAppleButton(.signIn) { appleIdRequest in
+                            appleIdRequest.requestedScopes = [.email]
+                        } onCompletion: { result in
+                            viewModel.onAuthenticationRequest(result)
                         }
-                        .foregroundStyle(Color.white)
+                        .signInWithAppleButtonStyle(.white)
+                        .frame(height: 50)
+                        .padding(.horizontal, 20)
+
+                        Spacer(minLength: 20)
                     }
+                    .errorView(isPresented: $viewModel.showErrorAlert, error: GenericErrors.generic)
+                    .loadingView(isPresented: $viewModel.isLoading)
                 }
-                .navigationDestination(isPresented: $viewModel.navigationToSign) {
-                    SignUpView()
-                }
-                .errorView(isPresented: $viewModel.showErrorAlert, error: GenericErrors.generic)
             }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundStyle(Color.white)
+                }
+            }
+            .navigationDestination(isPresented: $viewModel.navigationToSign, destination: {
+                SignUpView()
+            })
+            .interactiveDismissDisabled(true)
         }
-        .interactiveDismissDisabled(true)
     }
 }
 
