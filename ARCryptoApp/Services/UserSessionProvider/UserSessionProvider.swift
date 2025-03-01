@@ -254,7 +254,9 @@ class UserSessionService: UserSessionProvider {
         if let storedUser: User = keychainStore.get(for: .user),
            let deviceId = UIDevice.current.identifierForVendor,
            storedUser.id == deviceId.uuidString {
-            update(user: storedUser)
+            var tmpUser = storedUser
+            tmpUser.promocodes = []
+            update(user: tmpUser)
         }
         else {
             let deviceId = UIDevice.current.identifierForVendor!

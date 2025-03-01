@@ -54,14 +54,7 @@ struct ProfileView: View {
                 Spacer()
 
                 VStack {
-                    Image("coinIcon")
-                        .resizable()
-                        .frame(width: 50, height: 50)
-
-                    Text("\(viewModel.coinCount)")
-                        .font(.title)
-                        .bold()
-                        .foregroundColor(.yellow)
+                    CoinAmountView()
 
                     if !viewModel.nickname.isEmpty {
                         Text("nickname: \(viewModel.nickname)")

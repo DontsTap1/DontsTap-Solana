@@ -8,44 +8,36 @@
 import SwiftUI
 
 struct CashOutView: View {
+    private enum Constants {
+        static let twitterURL = URL(string: "https://twitter.com/TapDonts")!
+        static let telegramURL = URL(string: "https://t.me/DONTSTAPPP")!
+    }
     var body: some View {
         BackgroundGradientView {
             VStack(spacing: 20) {
-                Image(systemName: "bitcoinsign.circle.fill")
-                    .resizable()
-                    .frame(width: 100, height: 100)
-                    .foregroundColor(.yellow)
-                
-                Text("1234")
-                    .font(.largeTitle)
-                    .bold()
-                    .foregroundColor(.white)
-                
-                Text("You have earned 1234 coins. Use them to cash out or exchange for rewards. Keep earning more coins by participating in activities.")
-                    .font(.body)
+                CoinAmountView()
+
+                Text("Please follow us on social media to know hen cash out become available")
+                    .font(.title)
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
                     .padding()
                 
                 HStack(spacing: 40) {
-                    Link(destination: URL(string: "https://twitter.com")!) {
-                        Circle()
-                            .fill(Color.blue)
+                    Link(destination: Constants.twitterURL) {
+                        Image("twitter-icon")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
                             .frame(width: 60, height: 60)
-                            .overlay(
-                                Image(systemName: "link")
-                                    .foregroundColor(.white)
-                            )
+                            .clipShape(Circle())
                     }
                     
-                    Link(destination: URL(string: "https://telegram.org")!) {
-                        Circle()
-                            .fill(Color.blue)
-                            .frame(width: 60, height: 60)
-                            .overlay(
-                                Image(systemName: "link")
-                                    .foregroundColor(.white)
-                            )
+                    Link(destination: Constants.telegramURL) {
+                        Image("telegram-icon")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 70, height: 70)
+                            .clipShape(Circle())
                     }
                 }
             }
