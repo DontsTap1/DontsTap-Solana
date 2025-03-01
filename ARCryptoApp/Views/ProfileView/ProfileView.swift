@@ -33,6 +33,21 @@ struct ProfileView: View {
                                 .background(Color.black.opacity(0.6))
                                 .clipShape(Circle())
                         }
+                        if viewModel.isAvatarLoadingFailed {
+                            VStack {
+                                Image(systemName: "xmark.circle")
+                                    .resizable()
+                                    .frame(width: 50, height: 50)
+                                    .foregroundStyle(Color.red)
+
+                                Text("Failed to load")
+                                    .foregroundStyle(Color.white)
+                            }
+                            .frame(width: 150, height: 150)
+                            .background(Color.black.opacity(0.6))
+                            .clipShape(Circle())
+                            .allowsHitTesting(false)
+                        }
                     }
                 }
 
@@ -96,11 +111,11 @@ struct ProfileView: View {
                         viewModel.handleImageSelection(image)
                     }
                 case .failure:
-                    viewModel.errorText = GenericErrors.generic.userErrorText
+                    viewModel.error = GenericErrors.generic
                     viewModel.errorPresented.toggle()
                 }
             }
-            .errorView(isPresented: $viewModel.errorPresented, title: viewModel.errorText)
+            .errorView(isPresented: $viewModel.errorPresented, error: viewModel.error)
             .loadingView(isPresented: $viewModel.isLoading)
         }
     }

@@ -18,9 +18,10 @@ class ProfileViewModel: ObservableObject {
     @Published var isFilePickerPresented: Bool = false
     @Published var isSignedIn: Bool = true
     @Published var isAvatarLoading: Bool = false
+    @Published var isAvatarLoadingFailed = false
     @Published var isLoading = false
     @Published var errorPresented: Bool = false
-    @Published var errorText: String = ""
+    @Published var error: UserRepresentableError = GenericErrors.generic
     @Published var deleteAccountSuccess: Bool = false
 
     @Inject
@@ -56,24 +57,34 @@ class ProfileViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isAvatarLoading = false
+                switch completion {
+                case .finished:
+                    break
+                case .failure:
+                    self?.isAvatarLoadingFailed = true
+                }
             }, receiveValue: { [weak self] data in
                 if let image = UIImage(data: data) {
                     self?.userAvatar = image
+                    self?.isAvatarLoadingFailed = false
                 }
             })
             .store(in: &cancellables)
     }
 
     func handleImageSelection(_ image: UIImage) {
-        guard let imageData = image.jpegData(compressionQuality: 0.6) else { return }
+        guard let imageData = image.jpegData(compressionQuality: 1.0) else { return }
 
         isAvatarLoading = true
+        isAvatarLoadingFailed = false
         userSessionProvider.update(photo: imageData)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isAvatarLoading = false
-                if case .failure(let error) = completion {
-                    self?.errorText = error.localizedDescription
+                switch completion {
+                case .finished: break
+                case .failure(let error):
+                    self?.error = (error as? UserRepresentableError) ?? GenericErrors.generic
                     self?.errorPresented = true
                 }
             }, receiveValue: { [weak self] success in
@@ -94,8 +105,10 @@ class ProfileViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isLoading = false
-                if case .failure(let error) = completion {
-                    self?.errorText = error.localizedDescription
+                switch completion {
+                case .finished: break
+                case .failure(let error):
+                    self?.error = (error as? UserRepresentableError) ?? GenericErrors.generic
                     self?.errorPresented = true
                 }
             }, receiveValue: { [weak self] success in
