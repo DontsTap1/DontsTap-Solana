@@ -33,14 +33,15 @@ struct MenuView: View {
                                     showAR.toggle()
                                 }
                             } label: {
-                                Text("DONT STAP")
-                                    .bold()
-                                    .foregroundStyle(.white)
-                                    .background {
-                                        RoundedRectangle(cornerRadius: 25)
-                                            .fill(.purple)
-                                            .frame(width: 100, height: 100)
-                                    }
+                                VStack(spacing: 15) {
+                                    Image("dontStapButton")
+                                        .resizable()
+                                        .frame(width: 170, height: 170)
+                                    Text("TAP DONT STAP TO START THE GAME")
+                                        .font(.headline)
+                                        .underline()
+                                        .foregroundStyle(.white)
+                                }
                             }
                             .position(
                                 x: geometry.size.width / 2,
@@ -51,27 +52,33 @@ struct MenuView: View {
 
                         Spacer()
 
-                        HStack(spacing: 20) {
+                        HStack(spacing: 30) {
                             ForEach(MenuViewModel.MenuViewAction.allCases, id: \.rawValue) { action in
                                 Button(action: {
                                     viewModel.onMenuButtonTap(action: action)
                                 }) {
-                                    Circle()
-                                        .fill(Color.gray)
-                                        .frame(width: 60, height: 60)
-                                        .overlay {
-                                            switch action {
-                                            case .openProfile:
-                                                Image(systemName: "person.circle")
-                                                    .foregroundColor(.white)
-                                            case .openDoubleCoin:
-                                                Image(systemName: "dollarsign.circle")
-                                                    .foregroundColor(.white)
-                                            case .openCashout:
-                                                Image(systemName: "arrow.up.circle")
-                                                    .foregroundColor(.white)
-                                            }
+                                    switch action {
+                                    case .openProfile:
+                                        Image(systemName: "person.circle.fill")
+                                            .resizable()
+                                            .foregroundColor(Color.menuColors)
+                                            .frame(width: 50, height: 50)
+                                    case .openDoubleCoin:
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.menuColors)
+                                                .frame(width: 50, height: 50)
+
+                                            Text("X2")
+                                                .font(.title3)
+                                                .foregroundColor(Color.gradientColorTwo)
                                         }
+                                    case .openCashout:
+                                        Image(systemName: "dollarsign.circle.fill")
+                                            .resizable()
+                                            .foregroundColor(Color.menuColors)
+                                            .frame(width: 50, height: 50)
+                                    }
                                 }
                             }
                         }

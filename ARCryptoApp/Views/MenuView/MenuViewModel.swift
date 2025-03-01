@@ -47,7 +47,8 @@ class MenuViewModel: ObservableObject {
     }
 
     func handleSignInViewDismiss() {
-        if !userSessionProvider.isGuestUser, let presentationAction {
+        if !userSessionProvider.isGuestUser,
+           presentationAction != nil {
             isPresentationActive.toggle()
         }
     }
