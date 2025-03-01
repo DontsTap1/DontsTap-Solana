@@ -25,7 +25,7 @@ class MenuViewModel: ObservableObject {
         }
     }
 
-    @Published var presentationAction: MenuViewAction? = nil
+    @Published var presentationAction: MenuViewAction?
     @Published var isPresentationActive = false
     @Published var showSignIn = false
 
@@ -37,11 +37,17 @@ class MenuViewModel: ObservableObject {
     }
 
     func onMenuButtonTap(action: MenuViewAction) {
+        presentationAction = action
         if userSessionProvider.isGuestUser {
             showSignIn.toggle()
         }
         else {
-            presentationAction = action
+            isPresentationActive.toggle()
+        }
+    }
+
+    func handleSignInViewDismiss() {
+        if !userSessionProvider.isGuestUser, let presentationAction {
             isPresentationActive.toggle()
         }
     }

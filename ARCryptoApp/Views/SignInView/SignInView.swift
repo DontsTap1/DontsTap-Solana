@@ -72,6 +72,9 @@ struct SignInView: View {
                     }
                     .errorView(isPresented: $viewModel.showErrorAlert, error: GenericErrors.generic)
                     .loadingView(isPresented: $viewModel.isLoading)
+                    .onAppear {
+                        viewModel.dismissEnvironmentVariable = dismiss
+                    }
                 }
             }
             .toolbar {

@@ -8,7 +8,7 @@
 import Foundation
 
 struct User: Identifiable, Codable {
-    enum Status: Codable {
+    enum Status: String, Codable {
         case guest
         case signedIn
     }
@@ -47,5 +47,17 @@ struct User: Identifiable, Codable {
         self.promocodes = []
         self.status = .guest
         self.authToken = nil
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.status = try container.decode(User.Status.self, forKey: .status)
+
+        self.email = try container.decodeIfPresent(String.self, forKey: .email)
+        self.nickname = try container.decodeIfPresent(String.self, forKey: .nickname)
+        self.coins = try container.decodeIfPresent([Coin].self, forKey: .coins) ?? []
+        self.promocodes = try container.decodeIfPresent([Promocode].self, forKey: .promocodes) ?? []
+        self.authToken = try container.decodeIfPresent(String.self, forKey: .authToken)
     }
 }

@@ -8,6 +8,7 @@
 import AuthenticationServices
 import Combine
 import Foundation
+import SwiftUI
 
 class SignInViewModel: ObservableObject {
     init() {}
@@ -18,6 +19,7 @@ class SignInViewModel: ObservableObject {
     @Published var navigationToSign: Bool = false
     @Published var showErrorAlert = false
     @Published var isLoading = false
+    var dismissEnvironmentVariable: DismissAction?
 
     private var cancellable: Set<AnyCancellable> = []
 
@@ -42,7 +44,7 @@ class SignInViewModel: ObservableObject {
                     
                     switch status {
                     case .signedIn:
-                        print("already sign in")
+                        dismissEnvironmentVariable?()
                     case .redirectToSignUp:
                         self.navigationToSign.toggle()
                     }

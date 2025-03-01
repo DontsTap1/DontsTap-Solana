@@ -95,9 +95,12 @@ extension DatabaseManager {
 
         if let jsonDictionary = try JSONSerialization.jsonObject(with: jsonUserData) as? [String: Any] {
             let userQuery = "\(Constants.users)/\(user.id)"
-            databaseRef.child(userQuery).setValue(jsonDictionary) { error, dbRef in
-                print("user store process finished with error == \(error)")
+            databaseRef.child(Constants.users).child(user.id).setValue(jsonDictionary) { error, dbRef in
+                print("user store \(user.id) process finished with error == \(error)")
             }
+//            databaseRef.child(userQuery).setValue(jsonDictionary) { error, dbRef in
+//                print("user store \(user.id) process finished with error == \(error)")
+//            }
         }
     }
 
@@ -278,7 +281,13 @@ extension DatabaseManager {
             return nil
         }
 
-        return try? JSONDecoder().decode(User.self, from: currentUserDictionaryData)
+        do {
+            return try JSONDecoder().decode(User.self, from: currentUserDictionaryData)
+        }
+        catch {
+            print("decoding user error", error)
+            return nil
+        }
     }
 
     private func decodeSingleUser(snapshot: DataSnapshot, userId: String) -> User? {
@@ -290,7 +299,13 @@ extension DatabaseManager {
             return nil
         }
 
-        return try? JSONDecoder().decode(User.self, from: currentUserDictionaryData)
+        do {
+            return try JSONDecoder().decode(User.self, from: currentUserDictionaryData)
+        }
+        catch {
+            print("decoding user error", error)
+            return nil
+        }
     }
 
     private func decodeUsers(snapshot: DataSnapshot) -> [User] {

@@ -12,6 +12,7 @@ struct MenuView: View {
     @Binding var buttonCentre: CGPoint
 
     @StateObject private var viewModel = MenuViewModel()
+    @State private var rotate = false
 
     var body: some View {
         NavigationStack {
@@ -77,9 +78,11 @@ struct MenuView: View {
                     }
                     .onAppear(perform: viewModel.onAppear)
                 }
-                .sheet(isPresented: $viewModel.showSignIn) {
+                .sheet(isPresented: $viewModel.showSignIn, onDismiss: {
+                    viewModel.handleSignInViewDismiss()
+                }, content: {
                     SignInView()
-                }
+                })
                 .navigationDestination(isPresented: $viewModel.isPresentationActive, destination: {
                     if let action = viewModel.presentationAction {
                         switch action {
@@ -96,6 +99,7 @@ struct MenuView: View {
                     }
                 })
             }
+            .topToolbar()
         }
     }
 }
