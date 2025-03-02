@@ -38,15 +38,18 @@ class CoinCollectStore: CoinCollectStoreProvider {
     }
 
     func collectCoin(type: Coin.CoinType) {
+        print("### Coin Store: coin did collect")
         if let promocodeMultiplier = userSession.user?.promocodes.max(by: { $0.multiplier < $1.multiplier })?.multiplier, !userSession.isGuestUser {
             var newCoins = [Coin]()
             for _ in 0..<promocodeMultiplier {
                 newCoins.append(Coin(id: UUID(), type: type, state: .collected))
             }
+            print("### Coin Store: multiplied coin stored")
             self.userSession.addCoins(newCoins)
         }
         else {
             let newCoin = Coin(id: UUID(), type: type, state: .collected)
+            print("### Coin Store: normal coin stored")
             userSession.addCoin(newCoin)
         }
     }

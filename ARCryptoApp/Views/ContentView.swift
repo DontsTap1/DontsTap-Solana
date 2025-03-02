@@ -13,19 +13,17 @@ struct ContentView : View {
     @State private var buttonCenter: CGPoint = .zero
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                MenuView(showAR: $showAR, buttonCentre: $buttonCenter)
+        ZStack {
+            MenuView(showAR: $showAR, buttonCentre: $buttonCenter)
 
-                if showAR {
-                    GameView(showAR: $showAR)
-                        .modifier(
-                            ButtonDissolveTransition(
-                                isPresented: showAR,
-                                center: buttonCenter
-                            )
+            if showAR {
+                GameView(showAR: $showAR)
+                    .modifier(
+                        ButtonDissolveTransition(
+                            isPresented: showAR,
+                            center: buttonCenter
                         )
-                }
+                    )
             }
         }
     }

@@ -1,12 +1,12 @@
 //
-//  CustomToolbar.swift
+//  CustomToolbarViewModel.swift
 //  ARCryptoApp
 //
-//  Created by Ivan Tkachenko on 01.03.2025.
+//  Created by Ivan Tkachenko on 02.03.2025.
 //
 
-import SwiftUI
 import Combine
+import SwiftUI
 
 class TopToolbarViewModel: ObservableObject {
     @Published var avatar: UIImage?
@@ -74,57 +74,14 @@ class TopToolbarViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
-    }
-}
 
-struct TopToolbarModifier: ViewModifier {
-    @StateObject private var viewModel = TopToolbarViewModel()
-
-    func body(content: Content) -> some View {
-        content
-            .toolbar {
-                if viewModel.shouldRenderUserData {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        HStack(spacing: 8) {
-                            if let avatar = viewModel.avatar {
-                                Image(uiImage: avatar)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .clipShape(Circle())
-                                    .frame(width: 25, height: 25)
-                                    .overlay(
-                                        Circle()
-                                            .stroke(Color.yellow, lineWidth: 1)
-                                    )
-                            }
-
-                            if let nickname = viewModel.nickname, !nickname.isEmpty {
-                                Text(nickname)
-                                    .font(.headline)
-                                    .foregroundColor(.yellow)
-                            }
-                        }
-                    }
-                }
-
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack(spacing: 5) {
-                        Image("coinIcon") // Replace with coin image
-                            .resizable()
-                            .frame(width: 25, height: 25)
-
-                        Text("\(viewModel.coinCount)")
-                            .font(.title)
-                            .bold()
-                            .foregroundColor(.yellow)
-                    }
-                }
+        // User coins stream
+        coinCount = coinCollectProvider.cachedCoinsCount ?? .zero
+        userSessionProvider.userCollectedCoinsAmountStream
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] coinsAmount in
+                self?.coinCount = coinsAmount
             }
-    }
-}
-
-extension View {
-    func topToolbar() -> some View {
-        self.modifier(TopToolbarModifier())
+            .store(in: &cancellables)
     }
 }

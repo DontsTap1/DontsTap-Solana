@@ -11,54 +11,154 @@ import ARKit
 
 struct GameView: View {
     @Binding var showAR: Bool
+    @StateObject private var viewModel = ARViewModel()
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            ARViewContainer()
+        ZStack(alignment: .top) {
+            ARContainerView(arViewModel: viewModel)
                 .edgesIgnoringSafeArea(.all)
 
-            // Close button
-            Button(action: {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    showAR = false
+            VStack {
+                Spacer()
+
+                Button(action: {
+                    showAR.toggle()
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .resizable()
+                        .frame(width: 50, height: 50)
+                        .foregroundColor(.gradientColorTwo)
+                        .background(Color.white)
+                        .clipShape(Circle())
                 }
-            }) {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 30))
-                    .foregroundColor(.white)
-                    .padding()
+                .padding()
             }
         }
     }
 }
 
 // MARK: - AR View Container
-struct ARViewContainer: UIViewRepresentable {
+
+class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
+    @Inject
+    private var coinStoreProvider: CoinCollectStoreProvider
+    private var arView: ARView?
+
+    func setupARSession(in view: ARView) {
+        print("### AR: session did setup")
+
+        self.arView = view
+
+        let arConfig = ARWorldTrackingConfiguration()
+        arConfig.planeDetection = [.horizontal]
+        view.session.run(arConfig)
+        view.environment.sceneUnderstanding.options.insert(.occlusion)
+
+        let coachingOverlay = ARCoachingOverlayView()
+        coachingOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        coachingOverlay.session = view.session
+        coachingOverlay.goal = .horizontalPlane
+        coachingOverlay.delegate = self
+        coachingOverlay.activatesAutomatically = true
+        view.addSubview(coachingOverlay)
+
+        print("### AR: overlay did add")
+    }
+
+    func spawnCoins() {
+        guard let arView = arView else { return }
+
+        let results = arView.raycast(from: arView.center, allowing: .estimatedPlane, alignment: .horizontal)
+        if let firstResult = results.first {
+            let anchor = AnchorEntity(world: firstResult.worldTransform.translation)
+            print("### AR: ray cast gave results")
+
+            for _ in 0..<5 {
+                if let coin = CoinEntity.loadCoinSync() {
+                    print("### AR: coin did load")
+
+                    let xOffset = Float.random(in: -0.5...0.5)
+                    let zOffset = Float.random(in: -0.5...0.5)
+
+                    coin.position = SIMD3(xOffset, 0, zOffset)
+                    anchor.addChild(coin)
+                }
+            }
+
+            arView.scene.addAnchor(anchor)
+            print("### AR: 5 coins on anchor were placed")
+        }
+    }
+
+    func collectCoin() {
+        coinStoreProvider.collectCoin(type: .normal)
+    }
+
+    func coachingOverlayViewDidDeactivate(_ coachingOverlayView: ARCoachingOverlayView) {
+        spawnCoins()
+    }
+}
+
+struct ARContainerView: UIViewRepresentable {
+    @ObservedObject var arViewModel: ARViewModel
+
     func makeUIView(context: Context) -> ARView {
         let arView = ARView(frame: .zero)
 #if targetEnvironment(simulator)
         arView.cameraMode = .nonAR
 #endif
 
-        // Configure AR session
-        let config = ARWorldTrackingConfiguration()
-        arView.session.run(config)
-
-        // Add your AR content here
-        let anchor = AnchorEntity(plane: .horizontal)
-        // Example: Add a simple box
-        let box = ModelEntity(mesh: .generateBox(size: 0.3))
-        box.model?.materials = [SimpleMaterial(color: .blue, isMetallic: true)]
-        anchor.addChild(box)
-        arView.scene.addAnchor(anchor)
-
+        let tapGesture = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleTap(_:)))
+        arView.addGestureRecognizer(tapGesture)
+        arView.session.delegate = context.coordinator
+        arViewModel.setupARSession(in: arView)
         return arView
     }
 
     func updateUIView(_ uiView: ARView, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(arViewModel: arViewModel)
+    }
+
+    class Coordinator: NSObject, ARSessionDelegate {
+        var arViewModel: ARViewModel
+
+        init(arViewModel: ARViewModel) {
+            self.arViewModel = arViewModel
+        }
+
+        @objc func handleTap(_ gesture: UITapGestureRecognizer) {
+            print("### AR: user did tap somewhere")
+
+            guard let arView = gesture.view as? ARView else { return }
+
+            let location = gesture.location(in: arView)
+            if let entity = arView.entity(at: location), entity.isCoinEntity {
+                entity.removeFromParent()
+                print("### AR: enity \(entity.name) \(entity.id) was removed")
+                arViewModel.collectCoin()
+            }
+        }
+
+        func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
+            for anchor in anchors {
+                if anchor is ARPlaneAnchor {
+                    arViewModel.spawnCoins()
+                }
+            }
+        }
+    }
 }
+
 
 
 #Preview {
     GameView(showAR: .constant(false))
+}
+
+extension float4x4 {
+    var translation: SIMD3<Float> {
+        return SIMD3(columns.3.x, columns.3.y, columns.3.z)
+    }
 }
