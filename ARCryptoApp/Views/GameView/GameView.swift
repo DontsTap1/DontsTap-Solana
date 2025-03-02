@@ -28,10 +28,9 @@ struct GameView: View {
                         .resizable()
                         .frame(width: 50, height: 50)
                         .foregroundColor(.gradientColorTwo)
-                        .background(Color.white)
                         .clipShape(Circle())
+                        .shadow(radius: 5.0)
                 }
-                .padding()
             }
         }
     }

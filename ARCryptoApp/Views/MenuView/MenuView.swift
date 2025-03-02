@@ -58,18 +58,21 @@ struct MenuView: View {
                             }) {
                                 switch action {
                                 case .openProfile:
-                                    Image(systemName: "person.circle.fill")
+                                    Image(systemName: "person.crop.circle.fill")
                                         .resizable()
                                         .foregroundColor(Color.menuColors)
                                         .frame(width: 50, height: 50)
+                                        .shadow(radius: 5.0)
                                 case .openDoubleCoin:
                                     ZStack {
                                         Circle()
                                             .fill(Color.menuColors)
                                             .frame(width: 50, height: 50)
+                                            .shadow(radius: 5.0)
 
                                         Text("X2")
                                             .font(.title3)
+                                            .bold()
                                             .foregroundColor(Color.gradientColorTwo)
                                     }
                                 case .openCashout:
@@ -77,6 +80,7 @@ struct MenuView: View {
                                         .resizable()
                                         .foregroundColor(Color.menuColors)
                                         .frame(width: 50, height: 50)
+                                        .shadow(radius: 5.0)
                                 }
                             }
                         }

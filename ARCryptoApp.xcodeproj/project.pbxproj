@@ -39,9 +39,22 @@
 		CEE70F3D2D327A4500C54F5A /* ARCryptoAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ARCryptoAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CE6121E02D74EA5E0005C60A /* Exceptions for "ARCryptoApp" folder in "ARCryptoApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CEE70F222D327A4200C54F5A /* ARCryptoApp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CEE70F252D327A4200C54F5A /* ARCryptoApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CE6121E02D74EA5E0005C60A /* Exceptions for "ARCryptoApp" folder in "ARCryptoApp" target */,
+			);
 			path = ARCryptoApp;
 			sourceTree = "<group>";
 		};
@@ -428,6 +441,7 @@
 				DEVELOPMENT_TEAM = 982E46E4T5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ARCryptoApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DontStap;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.action-games";
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
@@ -465,6 +479,7 @@
 				DEVELOPMENT_TEAM = 982E46E4T5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ARCryptoApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DontStap;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.action-games";
 				INFOPLIST_KEY_NSCameraUsageDescription = "";

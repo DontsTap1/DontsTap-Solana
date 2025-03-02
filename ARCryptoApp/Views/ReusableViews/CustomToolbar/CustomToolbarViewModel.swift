@@ -12,8 +12,9 @@ class TopToolbarViewModel: ObservableObject {
     @Published var avatar: UIImage?
     @Published var nickname: String?
     @Published var coinCount: Int = 0
-    @Published var shouldRenderUserData = false
+    @Published var shouldRenderUserData = true
     @Published var isLoadingUserData = false
+    
     private var avatarData: Data? {
         didSet {
             if let avatarData {

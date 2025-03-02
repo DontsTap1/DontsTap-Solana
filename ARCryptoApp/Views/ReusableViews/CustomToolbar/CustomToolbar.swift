@@ -10,27 +10,41 @@ import Combine
 
 struct MainToolBar: ToolbarContent {
     @StateObject private var viewModel = TopToolbarViewModel()
+    @State private var coinAnimationToggle = false
 
     var body: some ToolbarContent {
         ToolbarItemGroup(placement: .topBarLeading) {
             if viewModel.shouldRenderUserData {
                 HStack(spacing: 8) {
-                    if let avatar = viewModel.avatar {
-                        Image(uiImage: avatar)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .clipShape(Circle())
-                            .frame(width: 25, height: 25)
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.yellow, lineWidth: 1)
-                            )
-                    }
+                    if viewModel.isLoadingUserData {
+                        Circle()
+                            .frame(width: 25.0, height: 25.0)
+                            .foregroundStyle(.yellow)
+                            .blur(radius: 3.0)
 
-                    if let nickname = viewModel.nickname, !nickname.isEmpty {
-                        Text(nickname)
-                            .font(.headline)
-                            .foregroundColor(.yellow)
+                        Rectangle()
+                            .frame(width: 100.0, height: 25.0)
+                            .foregroundStyle(.yellow)
+                            .blur(radius: 3.0)
+                    }
+                    else {
+                        if let avatar = viewModel.avatar {
+                            Image(uiImage: avatar)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .clipShape(Circle())
+                                .frame(width: 25, height: 25)
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.yellow, lineWidth: 1)
+                                )
+                        }
+
+                        if let nickname = viewModel.nickname, !nickname.isEmpty {
+                            Text(nickname)
+                                .font(.headline)
+                                .foregroundColor(.yellow)
+                        }
                     }
                 }
             }
@@ -41,6 +55,17 @@ struct MainToolBar: ToolbarContent {
                 Image("coinIcon") // Replace with coin image
                     .resizable()
                     .frame(width: 25, height: 25)
+                    .rotation3DEffect(
+                        .degrees(coinAnimationToggle ? 0.0 : 360.0),
+                        axis: (x: 0.0, y: 1.0, z: 0.0)
+                    )
+                    .animation(
+                        .interpolatingSpring(duration: 0.6).repeatForever(autoreverses: true),
+                        value: coinAnimationToggle
+                    )
+                    .onAppear {
+                        coinAnimationToggle.toggle()
+                    }
 
                 Text("\(viewModel.coinCount)")
                     .font(.title)
