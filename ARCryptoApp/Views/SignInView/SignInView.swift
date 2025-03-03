@@ -22,17 +22,7 @@ struct SignInView: View {
                     VStack {
                         Spacer()
 
-                        // Coin icon and count
-                        VStack(spacing: 5) {
-                            Image(systemName: "bitcoinsign.circle.fill")
-                                .resizable()
-                                .frame(width: 60, height: 60)
-                                .foregroundColor(.yellow)
-
-                            Text("0")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(.yellow)
-                        }
+                        CoinAmountView()
 
                         Spacer()
 

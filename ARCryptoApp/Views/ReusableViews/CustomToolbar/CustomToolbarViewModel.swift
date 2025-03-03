@@ -31,23 +31,51 @@ class TopToolbarViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        fetchUserData()
+        setupStreams()
+        fetchUserInfo()
     }
 
-    private func fetchUserData() {
+    private func setupStreams() {
         // User stream to observe change of user status
         userSessionProvider.userStream
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] user in
+                guard let self else { return }
                 if let nickname = user?.nickname {
-                    self?.nickname = nickname
+                    self.nickname = nickname
                 }
                 if let userStatus = user?.status {
-                    self?.shouldRenderUserData = userStatus != .guest
+                    let newStatus = userStatus != .guest
+                    if newStatus != self.shouldRenderUserData {
+                        fetchUserInfo()
+                    }
+                    self.shouldRenderUserData = newStatus
                 }
+                print("### user stream did update")
             })
             .store(in: &cancellables)
 
+        // User photo upload stream to observe updates
+        userSessionProvider.userDidUploadPhotoStream
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] newPhotoUploaded in
+                if newPhotoUploaded, let userCachedPhotoData = self?.userSessionProvider.userCachedPhotoData  {
+                    self?.avatar = UIImage(data: userCachedPhotoData)
+                }
+            }
+            .store(in: &cancellables)
+
+        // User coins stream
+        coinCount = coinCollectProvider.cachedCoinsCount ?? .zero
+        userSessionProvider.userCollectedCoinsAmountStream
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] coinsAmount in
+                self?.coinCount = coinsAmount
+            }
+            .store(in: &cancellables)
+    }
+
+    private func fetchUserInfo() {
         // User info
         isLoadingUserData = true
         userSessionProvider.getUserInfo()
@@ -62,27 +90,6 @@ class TopToolbarViewModel: ObservableObject {
                     self?.avatarData = avatarImageData
                 }
             })
-            .store(in: &cancellables)
-
-        // User photo upload stream to observe updates
-        userSessionProvider.userDidUploadPhotoStream
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                return
-            } receiveValue: { [weak self] newPhotoUploaded in
-                if newPhotoUploaded, let userCachedPhotoData = self?.userSessionProvider.userCachedPhotoData  {
-                    self?.avatar = UIImage(data: userCachedPhotoData)
-                }
-            }
-            .store(in: &cancellables)
-
-        // User coins stream
-        coinCount = coinCollectProvider.cachedCoinsCount ?? .zero
-        userSessionProvider.userCollectedCoinsAmountStream
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] coinsAmount in
-                self?.coinCount = coinsAmount
-            }
             .store(in: &cancellables)
     }
 }

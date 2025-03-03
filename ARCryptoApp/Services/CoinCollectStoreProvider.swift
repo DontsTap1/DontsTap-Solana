@@ -9,7 +9,6 @@ import Foundation
 import Combine
 
 protocol CoinCollectStoreProvider: AnyObject {
-    var collectedCoinsStream: AnyPublisher<[Coin], Never> { get }
     var cachedCoinsCount: Int? { get }
 
     func getCoins() -> AnyPublisher<[Coin], Never>
@@ -19,18 +18,12 @@ protocol CoinCollectStoreProvider: AnyObject {
 class CoinCollectStore: CoinCollectStoreProvider {
     private let userSession: UserSessionProvider
 
-    let collectedCoinsStream: AnyPublisher<[Coin], Never>
     var cachedCoinsCount: Int? {
         userSession.user?.coins.count
     }
 
     init(userSession: UserSessionProvider) {
         self.userSession = userSession
-        self.collectedCoinsStream = userSession.userStream
-            .map({ user in
-                return user?.coins ?? []
-            })
-            .eraseToAnyPublisher()
     }
 
     func getCoins() -> AnyPublisher<[Coin], Never> {

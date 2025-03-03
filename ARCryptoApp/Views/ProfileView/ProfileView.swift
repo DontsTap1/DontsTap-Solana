@@ -100,12 +100,13 @@ struct ProfileView: View {
             .fileImporter(isPresented: $viewModel.isFilePickerPresented, allowedContentTypes: [.image]) { result in
                 switch result {
                 case .success(let url):
-                    if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
+                    if let data = try? Data(contentsOf: url),
+                       let image = UIImage(data: data) {
                         viewModel.handleImageSelection(image)
                     }
                 case .failure:
-                    viewModel.error = GenericErrors.generic
-                    viewModel.errorPresented.toggle()
+                        viewModel.error = GenericErrors.generic
+                        viewModel.errorPresented.toggle()
                 }
             }
             .errorView(isPresented: $viewModel.errorPresented, error: viewModel.error)
