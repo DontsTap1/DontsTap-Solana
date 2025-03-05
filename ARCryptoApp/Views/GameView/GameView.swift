@@ -27,7 +27,7 @@ struct GameView: View {
                     Image(systemName: "xmark.circle.fill")
                         .resizable()
                         .frame(width: 50, height: 50)
-                        .foregroundColor(.gradientColorTwo)
+                        .foregroundColor(.menuColors)
                         .clipShape(Circle())
                         .shadow(radius: 5.0)
                 }
@@ -72,12 +72,12 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
             let anchor = AnchorEntity(world: firstResult.worldTransform.translation)
             print("### AR: ray cast gave results")
 
-            for _ in 0..<5 {
+            for _ in 0..<10 {
                 if let coin = CoinEntity.loadCoinSync() {
                     print("### AR: coin did load")
 
-                    let xOffset = Float.random(in: -0.5...0.5)
-                    let zOffset = Float.random(in: -0.5...0.5)
+                    let xOffset = Float.random(in: -0.7...0.7)
+                    let zOffset = Float.random(in: -0.7...0.7)
 
                     coin.position = SIMD3(xOffset, 0, zOffset)
                     anchor.addChild(coin)
@@ -85,7 +85,7 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
             }
 
             arView.scene.addAnchor(anchor)
-            print("### AR: 5 coins on anchor were placed")
+            print("### AR: 10 coins on anchor were placed")
         }
     }
 
@@ -136,7 +136,10 @@ struct ARContainerView: UIViewRepresentable {
             if let entity = arView.entity(at: location), entity.isCoinEntity {
                 entity.removeFromParent()
                 print("### AR: enity \(entity.name) \(entity.id) was removed")
-                arViewModel.collectCoin()
+                #warning("verify if coin collect blocks main thread")
+                DispatchQueue.global(qos: .userInitiated).async {
+                    self.arViewModel.collectCoin()
+                }
             }
         }
 

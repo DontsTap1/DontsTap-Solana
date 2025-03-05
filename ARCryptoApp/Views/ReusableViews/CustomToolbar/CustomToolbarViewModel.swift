@@ -45,11 +45,10 @@ class TopToolbarViewModel: ObservableObject {
                     self.nickname = nickname
                 }
                 if let userStatus = user?.status {
-                    let newStatus = userStatus != .guest
-                    if newStatus != self.shouldRenderUserData {
+                    if userStatus == .signedIn {
                         fetchUserInfo()
                     }
-                    self.shouldRenderUserData = newStatus
+                    self.shouldRenderUserData = userStatus == .signedIn
                 }
                 print("### user stream did update")
             })

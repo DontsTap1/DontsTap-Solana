@@ -98,9 +98,6 @@ extension DatabaseManager {
             databaseRef.child(Constants.users).child(user.id).setValue(jsonDictionary) { error, dbRef in
                 print("user store \(user.id) process finished with error == \(error)")
             }
-//            databaseRef.child(userQuery).setValue(jsonDictionary) { error, dbRef in
-//                print("user store \(user.id) process finished with error == \(error)")
-//            }
         }
     }
 
@@ -115,13 +112,16 @@ extension DatabaseManager {
 
     func getUser(userId: String) -> AnyPublisher<User?, Error> {
         Future<User?, Error> { result in
-            self.databaseRef.child(Constants.users).child(userId).getData { error, snapshot in
-                if let snapshot, snapshot.exists() {
-                    let user = self.decodeUser(snapshot: snapshot, userId: userId)
-                    result(.success(user))
-                }
-                else if let error {
-                    result(.failure(error))
+            // for some reason fetching user by id, doesn't work. so I need to fetch whole snapshot
+            self.databaseRef.observeSingleEvent(of: .value) { snapshot in
+                if snapshot.exists() {
+                    let users = self.decodeUsers(snapshot: snapshot)
+                    if let user = users.first(where: { $0.id == userId }) {
+                        result(.success(user))
+                    }
+                    else {
+                        result(.failure(DatabaseProviderError.valueNotFound))
+                    }
                 }
                 else {
                     result(.failure(DatabaseProviderError.valueNotFound))

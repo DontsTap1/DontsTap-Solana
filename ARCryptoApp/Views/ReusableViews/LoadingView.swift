@@ -25,6 +25,7 @@ struct LoadingViewModifier: ViewModifier {
                 VisualEffectBlur(style: .systemUltraThinMaterial)
                     .ignoresSafeArea()
 
+                #warning("replace with coins loading")
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color.white)
                     .frame(width: 100, height: 100)

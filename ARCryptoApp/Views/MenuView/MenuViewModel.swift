@@ -32,10 +32,6 @@ class MenuViewModel: ObservableObject {
     @Inject
     var userSessionProvider: UserSessionProvider
 
-    func onAppear() {
-
-    }
-
     func onMenuButtonTap(action: MenuViewAction) {
         presentationAction = action
         if userSessionProvider.isGuestUser {

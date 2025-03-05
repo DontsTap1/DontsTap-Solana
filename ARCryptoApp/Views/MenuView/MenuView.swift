@@ -33,6 +33,7 @@ struct MenuView: View {
                             }
                         } label: {
                             VStack(spacing: 15) {
+                                #warning("add animation for scaling")
                                 Image("dontStapButton")
                                     .resizable()
                                     .frame(width: 170, height: 170)
@@ -86,7 +87,6 @@ struct MenuView: View {
                         }
                     }
                 }
-                .onAppear(perform: viewModel.onAppear)
             }
             .sheet(isPresented: $viewModel.showSignIn, onDismiss: {
                 viewModel.handleSignInViewDismiss()

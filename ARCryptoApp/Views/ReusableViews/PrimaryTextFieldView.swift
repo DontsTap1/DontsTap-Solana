@@ -23,7 +23,7 @@ struct PrimaryTextFieldView: View {
             TextField("", text: $text)
                 .padding(.all, 10)
                 .background(Color.white)
-                .tint(Color.black)
+                .foregroundStyle(Color.black)
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(isValid ? Color.black : Color.red, lineWidth: 2)

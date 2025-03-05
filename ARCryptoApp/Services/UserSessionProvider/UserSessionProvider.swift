@@ -84,11 +84,18 @@ class UserSessionService: UserSessionProvider {
     private(set) var userCachedPhotoData: Data?
     private(set) var user: User?
     var userStream: AnyPublisher<User?, Never> {
-        guard let userId = user?.id else {
+//        return _userStream
+//            .eraseToAnyPublisher()
+//        guard let userId = user?.id else {
+//            return Just<User?>(nil)
+//                .eraseToAnyPublisher()
+//        }
+
+        guard let userId = user?.id ?? UIDevice.current.identifierForVendor?.uuidString else {
             return Just<User?>(nil)
                 .eraseToAnyPublisher()
         }
-        
+
         return databaseProvider.observeUser(userId: userId)
     }
     var userDidUploadPhotoStream: AnyPublisher<Bool, Never> {
@@ -178,6 +185,7 @@ class UserSessionService: UserSessionProvider {
             update(email: email)
         }
 
+        #warning("check if auth token gives more information")
         return databaseProvider.getUser(userId: UIDevice.current.identifierForVendor!.uuidString)
             .map { remoteUser in
                 if let remoteUser, remoteUser.nickname != nil {
@@ -251,12 +259,13 @@ class UserSessionService: UserSessionProvider {
     }
 
     private func loadUserInitialState() {
-        if let storedUser: User = keychainStore.get(for: .user),
-           let deviceId = UIDevice.current.identifierForVendor,
-           storedUser.id == deviceId.uuidString {
-            var tmpUser = storedUser
-            tmpUser.promocodes = []
-            update(user: tmpUser)
+        if var storedUser: User = keychainStore.get(for: .user),
+           let deviceId = UIDevice.current.identifierForVendor?.uuidString {
+            // in case stored user id (device) id differs from current one.
+            // this could happen if for example user deleted the app, but keychain still store the data
+            // and now app installed one more time, but device id changed
+            storedUser.id = deviceId
+            update(user: storedUser)
         }
         else {
             let deviceId = UIDevice.current.identifierForVendor!
@@ -277,7 +286,7 @@ class UserSessionService: UserSessionProvider {
                     }
 
                     if let remoteUser {
-                        update(user: remoteUser, withDatabaseUpdate: false)
+                        update(user: remoteUser)
                     }
                     else {
                         let newFreshUser = User(id: deviceId.uuidString)
@@ -468,6 +477,9 @@ extension UserSessionService {
     private func update(user: User, withDatabaseUpdate: Bool = true) {
         self.user = user
         keychainStore.store(user, for: .user)
+        if let authToken = user.authToken {
+            keychainStore.store(authToken, for: .userToken)
+        }
         if withDatabaseUpdate {
             try? databaseProvider.storeUser(user: user)
         }
