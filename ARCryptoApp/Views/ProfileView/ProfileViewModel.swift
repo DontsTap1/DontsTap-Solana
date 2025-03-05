@@ -22,6 +22,8 @@ class ProfileViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorPresented: Bool = false
     @Published var error: UserRepresentableError = GenericErrors.generic
+
+    @Published var isDeleteAccountConfirmationPresented = false
     @Published var deleteAccountSuccess: Bool = false
 
     @Inject
@@ -99,8 +101,11 @@ class ProfileViewModel: ObservableObject {
         userSessionProvider.signOutSession()
     }
 
+    func deleteAttemptAccount() {
+        isDeleteAccountConfirmationPresented.toggle()
+    }
+
     func deleteAccount() {
-        #warning("add confirmation modal if user really wanna delete all data")
         isLoading = true
         userSessionProvider.deleteAccount()
             .receive(on: DispatchQueue.main)

@@ -10,30 +10,36 @@ import SwiftUI
 /// Loading View Modifier
 struct LoadingViewModifier: ViewModifier {
     @Binding var isPresented: Bool
+    @State private var coinAnimationToggle = false
 
     func body(content: Content) -> some View {
         ZStack {
             content
 
             if isPresented {
-                // Full-screen overlay with blur effect
-                Color.black.opacity(0.4)
-                    .ignoresSafeArea()
-                    .transition(.opacity)
-
                 // Blurred background
-                VisualEffectBlur(style: .systemUltraThinMaterial)
+                VisualEffectBlur(style: .systemUltraThinMaterialLight)
                     .ignoresSafeArea()
-
-                #warning("replace with coins loading")
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white)
-                    .frame(width: 100, height: 100)
-                    .overlay(
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle())
-                            .scaleEffect(1.5)
-                    )
+                
+                VStack {
+                    Image("coinIcon") // Replace with coin image
+                        .resizable()
+                        .frame(width: 50, height: 50)
+                        .rotation3DEffect(
+                            .degrees(coinAnimationToggle ? 0.0 : 360.0),
+                            axis: (x: 0.0, y: 1.0, z: 0.0)
+                        )
+                        .animation(
+                            .interpolatingSpring(duration: 0.55).repeatForever(autoreverses: true),
+                            value: coinAnimationToggle
+                        )
+                    Text("coins are running...")
+                        .foregroundStyle(Color.white)
+                        .font(.title)
+                }
+                .onAppear {
+                    coinAnimationToggle.toggle()
+                }
             }
         }
     }
@@ -44,3 +50,10 @@ extension View {
         self.modifier(LoadingViewModifier(isPresented: isPresented))
     }
 }
+
+#Preview(body: {
+    BackgroundGradientView {
+        Color.clear
+            .loadingView(isPresented: .constant(true))
+    }
+})

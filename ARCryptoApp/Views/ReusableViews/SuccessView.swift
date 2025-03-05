@@ -77,3 +77,10 @@ extension View {
         self.modifier(SuccessViewModifier(isPresented: isPresented, title: title, message: message, onDismiss: onDismiss))
     }
 }
+
+#Preview {
+    BackgroundGradientView {
+        Color.clear
+            .successView(isPresented: .constant(true), title: "Well done, congrats", message: "Continue your journey")
+    }
+}

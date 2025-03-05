@@ -73,7 +73,7 @@ struct ProfileView: View {
                 .padding(.horizontal, 20)
 
                 Button(action: {
-                    viewModel.deleteAccount()
+                    viewModel.deleteAttemptAccount()
                 }) {
                     Text("DELETE ACCOUNT")
                         .foregroundColor(.white)
@@ -85,6 +85,14 @@ struct ProfileView: View {
                         dismiss()
                     }
                 })
+                .actionSheet(isPresented: $viewModel.isDeleteAccountConfirmationPresented) {
+                    ActionSheet(title: Text("Are you sure that you want to delete all your account data? Your won't be able to restore it and all your coins count and nickname will be removed?"), buttons: [
+                        .destructive(Text("Delete"), action: {
+                            viewModel.deleteAccount()
+                        }),
+                        .cancel()
+                    ])
+                }
             }
             .padding()
             .fullScreenCover(isPresented: $viewModel.isImagePickerPresented) {

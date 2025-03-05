@@ -28,6 +28,7 @@ struct ErrorViewModifier: ViewModifier {
                                     .resizable()
                                     .foregroundStyle(Color.red)
                                     .frame(width: 30, height: 30)
+                                    .shadow(radius: 2.5)
 
                                 Text(title)
                                     .font(.title2)
@@ -51,7 +52,7 @@ struct ErrorViewModifier: ViewModifier {
                                 .cornerRadius(8)
                             }
                             .padding()
-                            .background(RoundedRectangle(cornerRadius: 16).fill(Color.orange))
+                            .background(RoundedRectangle(cornerRadius: 16).fill(Color.menuColors))
                             .frame(maxWidth: 300)
                             .shadow(radius: 10)
                             .transition(.scale)
@@ -83,5 +84,12 @@ extension View {
 
     func errorView(isPresented: Binding<Bool>, error: UserRepresentableError, onDismiss: (() -> Void)? = nil) -> some View {
         self.modifier(ErrorViewModifier(isPresented: isPresented, title: error.userErrorText, message: error.userErrorDescription, onDismiss: onDismiss))
+    }
+}
+
+#Preview {
+    BackgroundGradientView {
+        Color.clear
+            .errorView(isPresented: .constant(true), error: GenericErrors.generic)
     }
 }
