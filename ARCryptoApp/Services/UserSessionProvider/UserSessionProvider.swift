@@ -84,13 +84,6 @@ class UserSessionService: UserSessionProvider {
     private(set) var userCachedPhotoData: Data?
     private(set) var user: User?
     var userStream: AnyPublisher<User?, Never> {
-//        return _userStream
-//            .eraseToAnyPublisher()
-//        guard let userId = user?.id else {
-//            return Just<User?>(nil)
-//                .eraseToAnyPublisher()
-//        }
-
         guard let userId = user?.id ?? UIDevice.current.identifierForVendor?.uuidString else {
             return Just<User?>(nil)
                 .eraseToAnyPublisher()
@@ -213,7 +206,8 @@ class UserSessionService: UserSessionProvider {
             guard let self else {
                 return
             }
-            deleteUserPhotoCancellable = Publishers.CombineLatest(databaseProvider.deletePhoto(userId: user.id), databaseProvider.delete(userId: user.id))
+            let photoId = user.photoId ?? user.id
+            deleteUserPhotoCancellable = Publishers.CombineLatest(databaseProvider.deletePhoto(photoId: photoId), databaseProvider.delete(userId: user.id))
                 .sink { [weak self] completion in
                     switch completion {
                     case .finished:
@@ -259,13 +253,24 @@ class UserSessionService: UserSessionProvider {
     }
 
     private func loadUserInitialState() {
-        if var storedUser: User = keychainStore.get(for: .user),
+        if let storedUser: User = keychainStore.get(for: .user),
            let deviceId = UIDevice.current.identifierForVendor?.uuidString {
-            // in case stored user id (device) id differs from current one.
+            // in case stored user id (deviceId) differs from current one.
             // this could happen if for example user deleted the app, but keychain still store the data
             // and now app installed one more time, but device id changed
-            storedUser.id = deviceId
-            update(user: storedUser)
+            var newStoredUser = storedUser
+            if storedUser.id != deviceId {
+                newStoredUser = storedUser.update(id: deviceId)
+                // this needed due to migration from old version to new version of app
+                // in some cases users has photos from old versions stored with old id
+                // while in new app version they can get new id, cause of deviceId change
+                // to avoid missing of photo , we making such tmp solution
+                // when user gonna upload new photo in new version we gonna assign the correct id
+                if storedUser.photoId == nil {
+                    newStoredUser = newStoredUser.update(photoId: storedUser.id)
+                }
+            }
+            update(user: newStoredUser)
         }
         else {
             let deviceId = UIDevice.current.identifierForVendor!
@@ -325,7 +330,14 @@ extension UserSessionService {
         return Future<Bool, Error> { [weak self] result in
             let compressedPhoto = UIImage(data: photo)?.jpegData(compressionQuality: 0.5)
             let photoToUpload = compressedPhoto ?? photo
-            self?.uploadPhotoCancellable = self?.databaseProvider.store(photoData: photoToUpload, with: user.id)
+            let photoId: String
+            if user.photoId == nil || (user.photoId != user.id) {
+                photoId = user.id
+            }
+            else {
+                photoId = user.photoId ?? user.id
+            }
+            self?.uploadPhotoCancellable = self?.databaseProvider.store(photoData: photoToUpload, with: photoId)
                 .sink(receiveCompletion: { completion in
                     switch completion {
                     case .finished:
@@ -334,6 +346,9 @@ extension UserSessionService {
                         result(.failure(failure))
                     }
                 }, receiveValue: { [weak self] success in
+                    if user.photoId == nil || user.photoId != user.id {
+                        self?.update(photoId: user.id)
+                    }
                     self?.userCachedPhotoData = photoToUpload
                     result(.success(success))
                     self?._userDidUploadPhotoStream.send(true)
@@ -343,13 +358,13 @@ extension UserSessionService {
     }
 
     private func deleteUserPhoto() -> AnyPublisher<Bool, Error> {
-        guard let userId = user?.id else {
+        guard let photoId = user?.photoId ?? user?.id else {
             return Fail(error: UserSessionError.noExistingPhotoForUser)
                 .eraseToAnyPublisher()
         }
 
         userCachedPhotoData = nil
-        return databaseProvider.deletePhoto(userId: userId)
+        return databaseProvider.deletePhoto(photoId: photoId)
     }
 
     func getCoins() -> AnyPublisher<[Coin], Never> {
@@ -365,19 +380,7 @@ extension UserSessionService {
             return
         }
 
-        var newCoins = user.coins
-        newCoins.append(coin)
-        
-        let newUser = User(
-            id: user.id,
-            email: user.email,
-            nickname: user.nickname,
-            coins: newCoins,
-            promocodes: user.promocodes,
-            status: user.status,
-            authToken: user.authToken
-        )
-
+        let newUser = user.appendCoin(coin)
         update(user: newUser)
     }
 
@@ -386,19 +389,7 @@ extension UserSessionService {
             return
         }
 
-        var newCoins = user.coins
-        newCoins.append(contentsOf: coins)
-
-        let newUser = User(
-            id: user.id,
-            email: user.email,
-            nickname: user.nickname,
-            coins: newCoins,
-            promocodes: user.promocodes,
-            status: user.status,
-            authToken: user.authToken
-        )
-
+        let newUser = user.appendCoins(coins)
         update(user: newUser)
     }
 
@@ -432,12 +423,12 @@ extension UserSessionService {
             .eraseToAnyPublisher()
         }
 
-        guard let userId = user?.id, authToken != nil else {
+        guard let photoId = user?.photoId ?? user?.id, authToken != nil else {
             return Fail(error: UserSessionError.noExistingPhotoForUser)
                 .eraseToAnyPublisher()
         }
 
-        let publisher = databaseProvider.getPhoto(userId: userId)
+        let publisher = databaseProvider.getPhoto(photoId: photoId)
         userPhotoDownloadCancellable = publisher
             .sink(receiveCompletion: { _ in }) { [weak self] photoData in
             self?.userCachedPhotoData = photoData
@@ -454,25 +445,14 @@ extension UserSessionService {
             return false
         }
 
-        var newPromocodes = user.promocodes
-        newPromocodes.append(promocode)
-
-        let newUser = User(
-            id: user.id,
-            email: user.email,
-            nickname: user.nickname,
-            coins: user.coins,
-            promocodes: newPromocodes,
-            status: user.status,
-            authToken: user.authToken
-        )
-
+        let newUser = user.appendPromocode(promocode)
         update(user: newUser)
-        return true 
+
+        return true
     }
 }
 
-// MARK: Helper methods
+// MARK: - Helper methods
 extension UserSessionService {
     private func update(user: User, withDatabaseUpdate: Bool = true) {
         self.user = user
@@ -494,17 +474,7 @@ extension UserSessionService {
             return
         }
 
-        let newUser = User(
-            id: user.id,
-            email: email,
-            nickname: nickname,
-            coins: user.coins,
-            promocodes: user.promocodes,
-            status: status,
-            authToken: authToken
-        )
-
-        update(user: newUser)
+        update(user: user.update(authToken: authToken, status: status, email: email, nickname: nickname))
     }
 
     private func update(authToken: String, status: User.Status) {
@@ -512,17 +482,7 @@ extension UserSessionService {
             return
         }
 
-        let newUser = User(
-            id: user.id,
-            email: user.email,
-            nickname: user.nickname,
-            coins: user.coins,
-            promocodes: user.promocodes,
-            status: status,
-            authToken: authToken
-        )
-
-        update(user: newUser)
+        update(user: user.update(authToken: authToken, status: status))
     }
 
     private func update(authToken: String, status: User.Status, nickname: String) {
@@ -530,17 +490,7 @@ extension UserSessionService {
             return
         }
 
-        let newUser = User(
-            id: user.id,
-            email: user.email,
-            nickname: nickname,
-            coins: user.coins,
-            promocodes: user.promocodes,
-            status: status,
-            authToken: authToken
-        )
-
-        update(user: newUser)
+        update(user: user.update(authToken: authToken, status: status, nickname: nickname))
     }
 
     private func update(authToken: String?) {
@@ -548,17 +498,7 @@ extension UserSessionService {
             return
         }
 
-        let newUser = User(
-            id: user.id,
-            email: user.email,
-            nickname: user.nickname,
-            coins: user.coins,
-            promocodes: user.promocodes,
-            status: user.status,
-            authToken: authToken
-        )
-
-        update(user: newUser)
+        update(user: user.update(authToken: authToken))
     }
 
     private func update(status: User.Status) {
@@ -566,17 +506,7 @@ extension UserSessionService {
             return
         }
 
-        let newUser = User(
-            id: user.id,
-            email: user.email,
-            nickname: user.nickname,
-            coins: user.coins,
-            promocodes: user.promocodes,
-            status: status,
-            authToken: user.authToken
-        )
-
-        update(user: newUser)
+        update(user: user.update(status: status))
     }
 
     private func update(nickname: String) {
@@ -584,16 +514,171 @@ extension UserSessionService {
             return
         }
 
-        let newUser = User(
-            id: user.id,
-            email: user.email,
-            nickname: nickname,
-            coins: user.coins,
-            promocodes: user.promocodes,
-            status: user.status,
-            authToken: user.authToken
-        )
+        update(user: user.update(nickname: nickname))
+    }
 
-        update(user: newUser)
+    private func update(photoId: String) {
+        guard let user else {
+            return
+        }
+
+        update(user: user.update(photoId: photoId))
+    }
+}
+
+fileprivate extension User {
+    func update(id: String) -> User {
+        return User(
+            id: id,
+            email: self.email,
+            nickname: self.nickname,
+            coins: self.coins,
+            promocodes: self.promocodes,
+            status: self.status,
+            authToken: self.authToken,
+            photoId: self.photoId
+        )
+    }
+
+    func update(authToken: String, status: User.Status, email: String?, nickname: String?) -> User {
+        return User(
+            id: self.id,
+            email: email,
+            nickname: nickname,
+            coins: self.coins,
+            promocodes: self.promocodes,
+            status: status,
+            authToken: authToken,
+            photoId: self.photoId
+        )
+    }
+
+    func update(authToken: String, status: User.Status) -> User {
+        return User(
+            id: self.id,
+            email: self.email,
+            nickname: self.nickname,
+            coins: self.coins,
+            promocodes: self.promocodes,
+            status: status,
+            authToken: authToken,
+            photoId: self.photoId
+        )
+    }
+
+    func update(authToken: String, status: User.Status, nickname: String) -> User {
+        return User(
+            id: self.id,
+            email: self.email,
+            nickname: nickname,
+            coins: self.coins,
+            promocodes: self.promocodes,
+            status: status,
+            authToken: authToken,
+            photoId: self.photoId
+        )
+    }
+
+    func update(authToken: String?) -> User {
+        return User(
+            id: self.id,
+            email: self.email,
+            nickname: self.nickname,
+            coins: self.coins,
+            promocodes: self.promocodes,
+            status: self.status,
+            authToken: authToken,
+            photoId: self.photoId
+        )
+    }
+
+    func update(status: User.Status) -> User {
+        return User(
+            id: self.id,
+            email: self.email,
+            nickname: self.nickname,
+            coins: self.coins,
+            promocodes: self.promocodes,
+            status: status,
+            authToken: self.authToken,
+            photoId: self.photoId
+        )
+    }
+
+    func update(nickname: String) -> User {
+        return User(
+            id: self.id,
+            email: self.email,
+            nickname: nickname,
+            coins: self.coins,
+            promocodes: self.promocodes,
+            status: self.status,
+            authToken: self.authToken,
+            photoId: self.photoId
+        )
+    }
+
+    func update(photoId: String) -> User {
+        return User(
+            id: self.id,
+            email: self.email,
+            nickname: self.nickname,
+            coins: self.coins,
+            promocodes: self.promocodes,
+            status: self.status,
+            authToken: self.authToken,
+            photoId: photoId
+        )
+    }
+
+    func appendCoin(_ coin: Coin) -> User {
+        var coinList = self.coins
+        coinList.append(coin)
+        return User(
+            id: self.id,
+            email: self.email,
+            nickname: self.nickname,
+            coins: coinList,
+            promocodes: self.promocodes,
+            status: self.status,
+            authToken: self.authToken,
+            photoId: self.photoId
+        )
+    }
+
+    func appendCoins(_ coins: [Coin]) -> User {
+        var coinList = self.coins
+        coinList.append(contentsOf: coins)
+
+        return User(
+            id: self.id,
+            email: self.email,
+            nickname: self.nickname,
+            coins: coinList,
+            promocodes: self.promocodes,
+            status: self.status,
+            authToken: self.authToken,
+            photoId: self.photoId
+        )
+    }
+
+    func appendPromocode(_ promocode: Promocode) -> User {
+        var newPromocodes = self.promocodes
+        newPromocodes.append(promocode)
+
+        return User(
+            id: self.id,
+            email: self.email,
+            nickname: self.nickname,
+            coins: self.coins,
+            promocodes: newPromocodes,
+            status: self.status,
+            authToken: self.authToken,
+            photoId: self.photoId
+        )
+    }
+
+    static func createEmptyUser(id: String) -> User {
+        return User(id: id)
     }
 }

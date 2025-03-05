@@ -13,13 +13,14 @@ struct User: Identifiable, Codable {
         case signedIn
     }
 
-    var id: String
-    var email: String?
-    var nickname: String?
-    var coins: [Coin] = []
-    var promocodes: [Promocode] = []
-    var status: User.Status
-    var authToken: String?
+    let id: String
+    let email: String?
+    let nickname: String?
+    let coins: [Coin]
+    let promocodes: [Promocode]
+    let status: User.Status
+    let authToken: String?
+    let photoId: String?
 
     init(
         id: String,
@@ -28,7 +29,8 @@ struct User: Identifiable, Codable {
         coins: [Coin],
         promocodes: [Promocode],
         status: User.Status,
-        authToken: String? = nil
+        authToken: String? = nil,
+        photoId: String? = nil
     ) {
         self.id = id
         self.email = email
@@ -37,6 +39,7 @@ struct User: Identifiable, Codable {
         self.promocodes = promocodes
         self.status = status
         self.authToken = authToken
+        self.photoId = photoId
     }
 
     init(id: String) {
@@ -47,6 +50,7 @@ struct User: Identifiable, Codable {
         self.promocodes = []
         self.status = .guest
         self.authToken = nil
+        self.photoId = nil
     }
 
     init(from decoder: any Decoder) throws {
@@ -59,5 +63,6 @@ struct User: Identifiable, Codable {
         self.coins = try container.decodeIfPresent([Coin].self, forKey: .coins) ?? []
         self.promocodes = try container.decodeIfPresent([Promocode].self, forKey: .promocodes) ?? []
         self.authToken = try container.decodeIfPresent(String.self, forKey: .authToken)
+        self.photoId = try container.decodeIfPresent(String.self, forKey: .photoId)
     }
 }

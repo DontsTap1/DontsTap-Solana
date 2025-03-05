@@ -48,7 +48,9 @@ class TopToolbarViewModel: ObservableObject {
                     if userStatus == .signedIn {
                         fetchUserInfo()
                     }
-                    self.shouldRenderUserData = userStatus == .signedIn
+                    withAnimation {
+                        self.shouldRenderUserData = userStatus == .signedIn
+                    }
                 }
                 print("### user stream did update")
             })

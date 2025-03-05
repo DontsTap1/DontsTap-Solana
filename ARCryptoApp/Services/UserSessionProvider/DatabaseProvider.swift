@@ -21,9 +21,9 @@ protocol DatabaseProvider {
     func observeUser(userId: String) -> AnyPublisher<User?, Never>
     func getUser(userId: String) -> AnyPublisher<User?, Error>
 
-    func getPhoto(userId: String) -> AnyPublisher<Data, Error>
-    func store(photoData: Data, with userId: String) -> AnyPublisher<Bool, Error>
-    func deletePhoto(userId: String) -> AnyPublisher<Bool, Error>
+    func getPhoto(photoId: String) -> AnyPublisher<Data, Error>
+    func store(photoData: Data, with photoId: String) -> AnyPublisher<Bool, Error>
+    func deletePhoto(photoId: String) -> AnyPublisher<Bool, Error>
 
     func getCoins(userId: String) -> AnyPublisher<[Coin], Never>
 
@@ -158,17 +158,17 @@ extension DatabaseManager {
         .eraseToAnyPublisher()
     }
 
-    func store(photoData: Data, with userId: String) -> AnyPublisher<Bool, Error> {
-        let profileImagePathRef = storageRef.child("\(Constants.userProfileImages)/\(userId).jpg")
-        print("photo upload started")
+    func store(photoData: Data, with photoId: String) -> AnyPublisher<Bool, Error> {
+        let profileImagePathRef = storageRef.child("\(Constants.userProfileImages)/\(photoId).jpg")
+        print("photo upload started - \(photoId)")
         return Future<Bool, Error> { promise in
             profileImagePathRef.putData(photoData) { result in
                 switch result {
                 case .success:
-                    print("photo did upload")
+                    print("photo did upload \(photoId)")
                     promise(.success(true))
                 case .failure(let error):
-                    print("photo failed upload")
+                    print("photo failed upload \(photoId)")
                     promise(.failure(error))
                 }
             }
@@ -176,11 +176,12 @@ extension DatabaseManager {
         .eraseToAnyPublisher()
     }
 
-    func deletePhoto(userId: String) -> AnyPublisher<Bool, Error> {
-        let profileImagePathRef = storageRef.child("\(Constants.userProfileImages)/\(userId).jpg")
+    func deletePhoto(photoId: String) -> AnyPublisher<Bool, Error> {
+        let profileImagePathRef = storageRef.child("\(Constants.userProfileImages)/\(photoId).jpg")
 
         return Future<Bool, Error> { promise in
             profileImagePathRef.delete { deleteError in
+                print("photo delete result \(deleteError == nil) \(photoId)")
                 if let deleteError {
                     promise(.failure(deleteError))
                 }
@@ -192,17 +193,17 @@ extension DatabaseManager {
         .eraseToAnyPublisher()
     }
 
-    func getPhoto(userId: String) -> AnyPublisher<Data, Error> {
-        print("photo download started \(Thread.isMainThread)")
-        let profileImagePathRef = storageRef.child("\(Constants.userProfileImages)/\(userId).jpg")
+    func getPhoto(photoId: String) -> AnyPublisher<Data, Error> {
+        print("photo download started \(photoId)")
+        let profileImagePathRef = storageRef.child("\(Constants.userProfileImages)/\(photoId).jpg")
 
         return Future<Data, Error> { promise in
             let downloadTask = profileImagePathRef.getData(maxSize: Constants.maxImageSize) { result in
-                print("photo download result \(result) \(Thread.isMainThread)")
+                print("photo download result \(result) \(photoId)")
                 promise(result)
             }
             downloadTask.observe(.progress) { snapshot in
-                print("photo download progress \(snapshot.progress) \(Thread.isMainThread)")
+                print("photo download progress \(snapshot.progress) \(photoId)")
             }
         }
         .eraseToAnyPublisher()

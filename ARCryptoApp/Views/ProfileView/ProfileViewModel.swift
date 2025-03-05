@@ -100,6 +100,7 @@ class ProfileViewModel: ObservableObject {
     }
 
     func deleteAccount() {
+        #warning("add confirmation modal if user really wanna delete all data")
         isLoading = true
         userSessionProvider.deleteAccount()
             .receive(on: DispatchQueue.main)
