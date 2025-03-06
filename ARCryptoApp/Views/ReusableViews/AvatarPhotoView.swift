@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-#warning("Add permission to bundle for camera and others")
 struct AvatarPhotoView: View {
     @Binding var selectedImage: UIImage?
     @Binding var isPhotoSourceActionSheetPresented: Bool

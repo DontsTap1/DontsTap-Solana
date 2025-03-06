@@ -43,6 +43,14 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
     private var coinStoreProvider: CoinCollectStoreProvider
     private var arView: ARView?
 
+    private var coinAREntity: CoinEntity?
+    private var countRenderedCoins: Int = 0
+
+    override init() {
+        super.init()
+        self.preLoadCoinEntity()
+    }
+
     func setupARSession(in view: ARView) {
         print("### AR: session did setup")
 
@@ -51,7 +59,6 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
         let arConfig = ARWorldTrackingConfiguration()
         arConfig.planeDetection = [.horizontal]
         view.session.run(arConfig)
-        view.environment.sceneUnderstanding.options.insert(.occlusion)
 
         let coachingOverlay = ARCoachingOverlayView()
         coachingOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -74,7 +81,7 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
             print("### AR: ray cast gave results")
 
             for _ in 0..<10 {
-                if let coin = CoinEntity.loadCoinSync() {
+                if let coin = coinAREntity?.clone(recursive: true) {
                     print("### AR: coin did load")
 
                     let xOffset = Float.random(in: -0.7...0.7)
@@ -82,6 +89,7 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
 
                     coin.position = SIMD3(xOffset, 0, zOffset)
                     anchor.addChild(coin)
+                    countRenderedCoins += 1
                 }
             }
 
@@ -90,8 +98,15 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
         }
     }
 
+    private func preLoadCoinEntity() {
+        coinAREntity = CoinEntity.loadCoinSync()
+    }
+
     func collectCoin() {
-        coinStoreProvider.collectCoin(type: .normal)
+        countRenderedCoins -= 1
+        DispatchQueue.main.async { [weak self] in
+            self?.coinStoreProvider.collectCoin(type: .normal)
+        }
     }
 
     func coachingOverlayViewDidDeactivate(_ coachingOverlayView: ARCoachingOverlayView) {
@@ -137,10 +152,7 @@ struct ARContainerView: UIViewRepresentable {
             if let entity = arView.entity(at: location), entity.isCoinEntity {
                 entity.removeFromParent()
                 print("### AR: enity \(entity.name) \(entity.id) was removed")
-                #warning("verify if coin collect blocks main thread")
-                DispatchQueue.global(qos: .userInitiated).async {
-                    self.arViewModel.collectCoin()
-                }
+                self.arViewModel.collectCoin()
             }
         }
 
