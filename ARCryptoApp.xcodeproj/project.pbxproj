@@ -444,7 +444,9 @@
 				INFOPLIST_FILE = ARCryptoApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DontStap;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.action-games";
-				INFOPLIST_KEY_NSCameraUsageDescription = "";
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "We need access to your photo library so that we can choose an avatar for your profile";
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to allow you to take a photo for your avatar or to collect coins in augmented reality.";
+				INFOPLIST_KEY_NSFileProviderPresenceUsageDescription = "We need access to your file provider for only those items which you choose to use for your avatar.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
@@ -483,7 +485,9 @@
 				INFOPLIST_FILE = ARCryptoApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DontStap;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.action-games";
-				INFOPLIST_KEY_NSCameraUsageDescription = "";
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "We need access to your photo library so that we can choose an avatar for your profile";
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to allow you to take a photo for your avatar or to collect coins in augmented reality.";
+				INFOPLIST_KEY_NSFileProviderPresenceUsageDescription = "We need access to your file provider for only those items which you choose to use for your avatar.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;

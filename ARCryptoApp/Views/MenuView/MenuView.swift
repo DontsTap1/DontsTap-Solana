@@ -12,7 +12,7 @@ struct MenuView: View {
     @Binding var buttonCentre: CGPoint
 
     @StateObject private var viewModel = MenuViewModel()
-    @State private var rotate = false
+    @State private var scaleMainButtonAnimation = false
 
     var body: some View {
         NavigationStack {
@@ -33,10 +33,11 @@ struct MenuView: View {
                             }
                         } label: {
                             VStack(spacing: 15) {
-                                #warning("add animation for scaling")
                                 Image("dontStapButton")
                                     .resizable()
                                     .frame(width: 170, height: 170)
+                                    .scaleEffect(scaleMainButtonAnimation ? 1.5 : 1.0)
+
                                 Text("TAP DONT STAP TO START THE GAME")
                                     .font(.headline)
                                     .underline()
@@ -49,6 +50,18 @@ struct MenuView: View {
                         )
                     }
                     .frame(height: 200)
+                    .onAppear {
+                        let delay = 0.5
+                        let reverseDelay = delay + 0.3
+                        withAnimation(.easeInOut.delay(delay)) {
+                            scaleMainButtonAnimation.toggle()
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + reverseDelay) {
+                            withAnimation(.easeInOut) {
+                                self.scaleMainButtonAnimation.toggle()
+                            }
+                        }
+                    }
 
                     Spacer()
 

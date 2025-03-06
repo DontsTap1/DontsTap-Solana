@@ -99,6 +99,7 @@ struct ProfileView: View {
                 ImagePicker(sourceType: .photoLibrary) { image in
                     viewModel.handleImageSelection(image)
                 }
+                .tint(.accentColor)
             }
             .fullScreenCover(isPresented: $viewModel.isCameraPresented) {
                 ImagePicker(sourceType: .camera) { image in

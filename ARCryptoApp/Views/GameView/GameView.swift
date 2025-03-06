@@ -64,6 +64,7 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
         print("### AR: overlay did add")
     }
 
+    #warning("Spawn coins if now coins rendered anymore")
     func spawnCoins() {
         guard let arView = arView else { return }
 
