@@ -44,7 +44,15 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
     private var arView: ARView?
 
     private var coinAREntity: CoinEntity?
-    private var countRenderedCoins: Int = 0
+    private var countRenderedCoins: Int = 0 {
+        didSet {
+            if isAllCoinsRemovedFromScene, countRenderedCoins == .zero {
+                spawnCoins()
+                isAllCoinsRemovedFromScene = false
+            }
+        }
+    }
+    private var isAllCoinsRemovedFromScene: Bool = false
 
     override init() {
         super.init()
@@ -71,7 +79,6 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
         print("### AR: overlay did add")
     }
 
-    #warning("Spawn coins if now coins rendered anymore")
     func spawnCoins() {
         guard let arView = arView else { return }
 
@@ -86,8 +93,8 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
 
                     let xOffset = Float.random(in: -0.7...0.7)
                     let zOffset = Float.random(in: -0.7...0.7)
-
                     coin.position = SIMD3(xOffset, 0, zOffset)
+
                     anchor.addChild(coin)
                     countRenderedCoins += 1
                 }
@@ -103,6 +110,9 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
     }
 
     func collectCoin() {
+        if countRenderedCoins - 1 == .zero {
+            isAllCoinsRemovedFromScene = true
+        }
         countRenderedCoins -= 1
         DispatchQueue.main.async { [weak self] in
             self?.coinStoreProvider.collectCoin(type: .normal)
