@@ -42,7 +42,7 @@ struct MainToolBar: ToolbarContent {
 
                         if let nickname = viewModel.nickname, !nickname.isEmpty {
                             Text(nickname)
-                                .font(.headline)
+                                .font(.title)
                                 .foregroundColor(.yellow)
                         }
                     }

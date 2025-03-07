@@ -29,6 +29,7 @@ struct PrimaryTextFieldView: View {
                         .stroke(isValid ? Color.black : Color.red, lineWidth: 2)
                 )
                 .cornerRadius(8)
+                .tint(.accentColor)
 
             if let errorMessage = errorMessage, !isValid {
                 Text(errorMessage)

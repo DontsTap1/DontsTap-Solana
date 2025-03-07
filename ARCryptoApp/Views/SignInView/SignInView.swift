@@ -40,11 +40,11 @@ struct SignInView: View {
                                 "Appear on the score record table"
                             ], id: \.self) { item in
                                 Text("- \(item)")
-                                    .font(.body)
+                                    .font(.title2)
                                     .foregroundColor(.white)
                             }
                         }
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, 15)
 
                         Spacer()
 
@@ -57,8 +57,6 @@ struct SignInView: View {
                         .signInWithAppleButtonStyle(.white)
                         .frame(height: 50)
                         .padding(.horizontal, 20)
-
-                        Spacer(minLength: 20)
                     }
                     .errorView(isPresented: $viewModel.showErrorAlert, error: GenericErrors.generic)
                     .loadingView(isPresented: $viewModel.isLoading)

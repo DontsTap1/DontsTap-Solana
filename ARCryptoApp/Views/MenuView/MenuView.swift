@@ -35,13 +35,14 @@ struct MenuView: View {
                             VStack(spacing: 15) {
                                 Image("dontStapButton")
                                     .resizable()
-                                    .frame(width: 170, height: 170)
+                                    .frame(width: 190, height: 190)
                                     .scaleEffect(scaleMainButtonAnimation ? 1.5 : 1.0)
 
                                 Text("TAP DONT STAP TO START THE GAME")
                                     .font(.headline)
                                     .underline()
                                     .foregroundStyle(.white)
+                                    .multilineTextAlignment(.center)
                             }
                         }
                         .position(
@@ -75,13 +76,13 @@ struct MenuView: View {
                                     Image(systemName: "person.crop.circle.fill")
                                         .resizable()
                                         .foregroundColor(Color.menuColors)
-                                        .frame(width: 50, height: 50)
+                                        .frame(width: 60, height: 60)
                                         .shadow(radius: 5.0)
                                 case .openDoubleCoin:
                                     ZStack {
                                         Circle()
                                             .fill(Color.menuColors)
-                                            .frame(width: 50, height: 50)
+                                            .frame(width: 60, height: 60)
                                             .shadow(radius: 5.0)
 
                                         Text("X2")
@@ -93,7 +94,7 @@ struct MenuView: View {
                                     Image(systemName: "dollarsign.circle.fill")
                                         .resizable()
                                         .foregroundColor(Color.menuColors)
-                                        .frame(width: 50, height: 50)
+                                        .frame(width: 60, height: 60)
                                         .shadow(radius: 5.0)
                                 }
                             }
