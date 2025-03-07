@@ -26,7 +26,7 @@ struct GameView: View {
                 }) {
                     Image(systemName: "xmark.circle.fill")
                         .resizable()
-                        .frame(width: 50, height: 50)
+                        .frame(width: 60, height: 60)
                         .foregroundColor(.menuColors)
                         .clipShape(Circle())
                         .shadow(radius: 5.0)
@@ -84,25 +84,48 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
 
         let results = arView.raycast(from: arView.center, allowing: .estimatedPlane, alignment: .horizontal)
         if let firstResult = results.first {
-            let anchor = AnchorEntity(world: firstResult.worldTransform.translation)
             print("### AR: ray cast gave results")
+            let anchor = AnchorEntity(world: firstResult.worldTransform.translation)
+            var placedPositions = [SIMD3<Float>]()
 
             for _ in 0..<10 {
+                var position: SIMD3<Float>
+                var attempts = 0
+
+                repeat {
+                    let xOffset = Float.random(in: -0.7...0.7)
+                    let zOffset = Float.random(in: 0.05...1.0)
+                    let yOffset: Float = 0.1
+                    position = SIMD3(xOffset, yOffset, zOffset)
+
+                    attempts += 1
+                    if attempts > 10 { break } // Avoid infinite loop
+                } while !isPositionVisible(position, arView: arView) || placedPositions.contains(where: { simd_distance($0, position) < 0.3 })
+
                 if let coin = coinAREntity?.clone(recursive: true) {
                     print("### AR: coin did load")
-
-                    let xOffset = Float.random(in: -0.7...0.7)
-                    let zOffset = Float.random(in: -0.7...0.7)
-                    coin.position = SIMD3(xOffset, 0, zOffset)
-
+                    coin.position = position
                     anchor.addChild(coin)
-                    countRenderedCoins += 1
+                    placedPositions.append(position)
                 }
             }
 
-            arView.scene.addAnchor(anchor)
             print("### AR: 10 coins on anchor were placed")
+            arView.scene.addAnchor(anchor)
         }
+    }
+
+    private func isPositionVisible(_ position: SIMD3<Float>, arView: ARView) -> Bool {
+        let cameraTransform = arView.cameraTransform
+        let raycast = arView.scene.raycast(origin: cameraTransform.translation, direction: normalize(position - cameraTransform.translation))
+
+        for result in raycast {
+            if result.distance < simd_distance(cameraTransform.translation, position) {
+                return false // Something is blocking the view
+            }
+        }
+
+        return true // Position is clear
     }
 
     private func preLoadCoinEntity() {

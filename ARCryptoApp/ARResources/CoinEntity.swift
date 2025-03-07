@@ -9,7 +9,7 @@ import Combine
 import Foundation
 import RealityKit
 
-final class CoinEntity: Entity {
+final class CoinEntity: Entity, HasCollision {
 
     var model: Entity?
 
@@ -47,6 +47,13 @@ final class CoinEntity: Entity {
         let coinEntity = CoinEntity()
         coinEntity.name = Constants.modelName
         coinEntity.addChild(arCoin)
+
+        // Get the actual bounding box size of the model
+        let boundingBox = arCoin.visualBounds(relativeTo: nil)
+        let collisionShape = ShapeResource.generateBox(size: boundingBox.extents * 1.5) // Make it bigger
+
+        // Apply collision to the model, NOT the container entity
+        arCoin.components.set(CollisionComponent(shapes: [collisionShape], mode: .trigger))
 
         return coinEntity
     }
