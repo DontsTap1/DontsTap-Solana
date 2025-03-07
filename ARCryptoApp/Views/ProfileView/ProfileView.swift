@@ -58,7 +58,7 @@ struct ProfileView: View {
 
                     if !viewModel.nickname.isEmpty {
                         Text("nickname: \(viewModel.nickname)")
-                            .font(.title3)
+                            .font(.title2)
                             .foregroundColor(.white)
                             .padding(.top, 10)
                     }
