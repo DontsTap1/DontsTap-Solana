@@ -107,6 +107,7 @@ struct MenuView: View {
                         }
                     }
                 }
+                .padding(.bottom)
             }
             .sheet(isPresented: $viewModel.showSignIn, onDismiss: {
                 viewModel.handleSignInViewDismiss()

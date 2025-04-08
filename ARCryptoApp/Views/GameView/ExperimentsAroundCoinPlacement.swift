@@ -1,3 +1,13 @@
+//
+//  ExperimentsAroundCoinPlacement.swift
+//  ARCryptoApp
+//
+//  Created by Ivan Tkachenko on 08.04.2025.
+//
+
+/// ignore this
+/// 
+/*
 func spawnCoinsOnDetectedPlanes() {
         guard let arView = self.arView,
               !detectedPlaneAnchors.isEmpty else {
@@ -59,6 +69,7 @@ func spawnCoinsOnDetectedPlanes() {
 
         arView.scene.addAnchor(anchor)
     }
+ */
 
     /*
     func spawnCoins() {
