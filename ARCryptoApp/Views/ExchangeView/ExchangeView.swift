@@ -20,6 +20,7 @@ struct ExchangeView: View {
                 canGoForward: $canGoForward,
                 webView: $webView)
         .ignoresSafeArea(.all)
+        .withCustomCloseButton()
         .loadingView(isPresented: $isLoading)
         .toolbar {
             ToolbarItemGroup(placement: .bottomBar) {

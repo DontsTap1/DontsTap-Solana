@@ -128,7 +128,6 @@ struct MenuView: View {
                             .withCustomBackButton()
                     case .openExchange:
                         ExchangeView()
-                            .withCustomBackButton()
                     }
                 }
             })
