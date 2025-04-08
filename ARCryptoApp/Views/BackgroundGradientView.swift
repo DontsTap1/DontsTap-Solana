@@ -11,8 +11,8 @@ struct BackgroundGradientView<Content: View>: View {
         ZStack {
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(simplifiedRed: 76, green: 41, blue: 221),
-                    Color(simplifiedRed: 135, green: 60, blue: 154)
+                    Color.gradientColorOne,
+                    Color.gradientColorTwo
                 ]),
                 startPoint: .top,
                 endPoint: .bottom

@@ -17,7 +17,7 @@ struct CashOutView: View {
             VStack(spacing: 20) {
                 CoinAmountView()
 
-                Text("Please follow us on social media to know hen cash out become available")
+                Text("Please follow us on social media to know when cash out become available")
                     .font(.title)
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)

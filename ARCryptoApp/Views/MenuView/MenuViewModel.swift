@@ -12,6 +12,7 @@ class MenuViewModel: ObservableObject {
         case openProfile
         case openDoubleCoin
         case openCashout
+        case openExchange
 
         var title: String {
             switch self {
@@ -21,6 +22,8 @@ class MenuViewModel: ObservableObject {
                 return "Double Coin"
             case .openCashout:
                 return "Cashout"
+            case .openExchange:
+                return "Exchange"
             }
         }
     }
@@ -34,7 +37,7 @@ class MenuViewModel: ObservableObject {
 
     func onMenuButtonTap(action: MenuViewAction) {
         presentationAction = action
-        if userSessionProvider.isGuestUser {
+        if userSessionProvider.isGuestUser, action != .openExchange {
             showSignIn.toggle()
         }
         else {

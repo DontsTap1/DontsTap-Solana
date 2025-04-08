@@ -96,6 +96,12 @@ struct MenuView: View {
                                         .foregroundColor(Color.menuColors)
                                         .frame(width: 60, height: 60)
                                         .shadow(radius: 5.0)
+                                case .openExchange:
+                                    Image(systemName: "bitcoinsign.circle.fill")
+                                        .resizable()
+                                        .foregroundColor(Color.menuColors)
+                                        .frame(width: 60, height: 60)
+                                        .shadow(radius: 5.0)
                                 }
                             }
                         }
@@ -118,6 +124,9 @@ struct MenuView: View {
                             .withCustomBackButton()
                     case .openCashout:
                         CashOutView()
+                            .withCustomBackButton()
+                    case .openExchange:
+                        ExchangeView()
                             .withCustomBackButton()
                     }
                 }

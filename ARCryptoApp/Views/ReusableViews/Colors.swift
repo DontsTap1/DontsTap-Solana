@@ -14,7 +14,7 @@ extension Color {
 
     static var menuColors = Color(uiColor: UIColor(simplifiedRed: 75, green: 138, blue: 197, alpha: 1.0))
 
-    static var gradientColorOne = Color(simplifiedRed: 76, green: 41, blue: 221)
+    static var gradientColorOne = Color.black
     static var gradientColorTwo = Color(simplifiedRed: 135, green: 60, blue: 154)
 }
 
