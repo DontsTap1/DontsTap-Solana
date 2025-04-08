@@ -88,25 +88,45 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
             let anchor = AnchorEntity(world: firstResult.worldTransform.translation)
             var placedPositions = [SIMD3<Float>]()
 
+            // Get camera transform for coin placement
+            let cameraTransform = arView.cameraTransform
+            let cameraForward = -normalize(cameraTransform.matrix.columns.2.xyz)
+            let cameraRight = normalize(cameraTransform.matrix.columns.0.xyz)
+
+            // Define placement area in front of camera
+            let minDistance: Float = 0.3
+            let maxDistance: Float = 0.8
+            let spreadAngle: Float = .pi / 4
+
             for _ in 0..<10 {
                 var position: SIMD3<Float>
                 var attempts = 0
 
                 repeat {
-                    let xOffset = Float.random(in: -0.7...0.7)
-                    let zOffset = Float.random(in: 0.05...1.0)
-                    let yOffset: Float = 0.1
-                    position = SIMD3(xOffset, yOffset, zOffset)
+                    // Calculate position in front of camera
+                    let distance = Float.random(in: minDistance...maxDistance)
+                    let angle = Float.random(in: -spreadAngle...spreadAngle)
+                    
+                    // Calculate position using camera's forward and right vectors
+                    let forwardOffset = cameraForward * distance
+                    let rightOffset = cameraRight * (distance * tan(angle))
+                    
+                    // Combine offsets with camera position
+                    position = cameraTransform.translation + forwardOffset + rightOffset
+                    position.y = firstResult.worldTransform.translation.y + 0.1 // Keep coins slightly above the plane
 
                     attempts += 1
                     if attempts > 10 { break } // Avoid infinite loop
-                } while !isPositionVisible(position, arView: arView) || placedPositions.contains(where: { simd_distance($0, position) < 0.3 })
+                } while !isPositionVisible(position, arView: arView) || 
+                        placedPositions.contains(where: { simd_distance($0, position) < 0.2 }) ||
+                        simd_distance(position, cameraTransform.translation) < minDistance
 
                 if let coin = coinAREntity?.clone(recursive: true) {
                     print("### AR: coin did load")
                     coin.position = position
                     anchor.addChild(coin)
                     placedPositions.append(position)
+                    countRenderedCoins += 1
                 }
             }
 
@@ -117,15 +137,26 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
 
     private func isPositionVisible(_ position: SIMD3<Float>, arView: ARView) -> Bool {
         let cameraTransform = arView.cameraTransform
-        let raycast = arView.scene.raycast(origin: cameraTransform.translation, direction: normalize(position - cameraTransform.translation))
-
-        for result in raycast {
-            if result.distance < simd_distance(cameraTransform.translation, position) {
-                return false // Something is blocking the view
-            }
+        let cameraForward = -normalize(cameraTransform.matrix.columns.2.xyz)
+        let directionToPosition = normalize(position - cameraTransform.translation)
+        
+        // Check if position is in front of camera (dot product > 0)
+        let dotProduct = dot(cameraForward, directionToPosition)
+        guard dotProduct > 0 else { return false }
+        
+        // Check if position is within field of view (angle < 45 degrees)
+        let angle = acos(dotProduct)
+        guard angle < .pi / 4 else { return false }
+        
+        // Check for obstacles
+        let raycast = arView.scene.raycast(
+            origin: cameraTransform.translation,
+            direction: directionToPosition
+        )
+        
+        return raycast.isEmpty || raycast.allSatisfy { result in
+            result.distance >= simd_distance(cameraTransform.translation, position)
         }
-
-        return true // Position is clear
     }
 
     private func preLoadCoinEntity() {
@@ -144,6 +175,10 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
 
     func coachingOverlayViewDidDeactivate(_ coachingOverlayView: ARCoachingOverlayView) {
         spawnCoins()
+    }
+
+    deinit {
+        print("### AR: ARViewModel deinit")
     }
 }
 
@@ -171,21 +206,29 @@ struct ARContainerView: UIViewRepresentable {
 
     class Coordinator: NSObject, ARSessionDelegate {
         var arViewModel: ARViewModel
+        private var lastTapTime: TimeInterval = 0
+        private let tapCooldown: TimeInterval = 0.3 // Prevent rapid taps
 
         init(arViewModel: ARViewModel) {
             self.arViewModel = arViewModel
         }
 
         @objc func handleTap(_ gesture: UITapGestureRecognizer) {
-            print("### AR: user did tap somewhere")
+            let currentTime = Date().timeIntervalSince1970
+            guard currentTime - lastTapTime >= tapCooldown else { return }
+            lastTapTime = currentTime
 
             guard let arView = gesture.view as? ARView else { return }
 
             let location = gesture.location(in: arView)
+            
+            // Perform a more precise hit test
+            let results = arView.raycast(from: location, allowing: .estimatedPlane, alignment: .horizontal)
+            
             if let entity = arView.entity(at: location), entity.isCoinEntity {
+                // Remove entity immediately for better responsiveness
                 entity.removeFromParent()
-                print("### AR: enity \(entity.name) \(entity.id) was removed")
-                self.arViewModel.collectCoin()
+                arViewModel.collectCoin()
             }
         }
 
@@ -199,8 +242,6 @@ struct ARContainerView: UIViewRepresentable {
     }
 }
 
-
-
 #Preview {
     GameView(showAR: .constant(false))
 }
@@ -208,5 +249,11 @@ struct ARContainerView: UIViewRepresentable {
 extension float4x4 {
     var translation: SIMD3<Float> {
         return SIMD3(columns.3.x, columns.3.y, columns.3.z)
+    }
+}
+
+extension SIMD4 where Scalar == Float {
+    var xyz: SIMD3<Float> {
+        return SIMD3(x, y, z)
     }
 }
