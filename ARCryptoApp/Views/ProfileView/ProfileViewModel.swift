@@ -66,7 +66,7 @@ class ProfileViewModel: ObservableObject {
                     self?.isAvatarLoadingFailed = true
                 }
             }, receiveValue: { [weak self] data in
-                if let image = UIImage(data: data) {
+                if let data, let image = UIImage(data: data) {
                     self?.userAvatar = image
                     self?.isAvatarLoadingFailed = false
                 }

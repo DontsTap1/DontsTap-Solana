@@ -111,22 +111,21 @@ extension DatabaseManager {
     }
 
     func getUser(userId: String) -> AnyPublisher<User?, Error> {
-        Future<User?, Error> { result in
+        Future<User?, Error> { [weak self] result in
             // for some reason fetching user by id, doesn't work. so I need to fetch whole snapshot
-            self.databaseRef.observeSingleEvent(of: .value) { snapshot in
-                if snapshot.exists() {
-                    let users = self.decodeUsers(snapshot: snapshot)
-                    if let user = users.first(where: { $0.id == userId }) {
-                        result(.success(user))
-                    }
-                    else {
-                        result(.failure(DatabaseProviderError.valueNotFound))
-                    }
+            self?.databaseRef.child(Constants.users).child(userId).observeSingleEvent(of: .value, with: { [weak self] userSnapshot in
+                guard let self else {
+                    result(.failure(DatabaseProviderError.valueNotFound))
+                    return
+                }
+
+                if let user = self.decodeSingleUser(snapshot: userSnapshot, userId: userId) {
+                    result(.success(user))
                 }
                 else {
                     result(.failure(DatabaseProviderError.valueNotFound))
                 }
-            }
+            })
         }
         .eraseToAnyPublisher()
     }

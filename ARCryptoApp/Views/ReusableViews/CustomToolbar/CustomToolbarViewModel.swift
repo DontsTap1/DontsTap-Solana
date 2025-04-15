@@ -20,6 +20,9 @@ class TopToolbarViewModel: ObservableObject {
             if let avatarData {
                 avatar = UIImage(data: avatarData)
             }
+            else {
+                avatar = nil
+            }
         }
     }
 
@@ -87,9 +90,7 @@ class TopToolbarViewModel: ObservableObject {
                 if let nickname = userInfo.nickname {
                     self?.nickname = nickname
                 }
-                if let avatarImageData = userInfo.photo {
-                    self?.avatarData = avatarImageData
-                }
+                self?.avatarData = userInfo.photo
             })
             .store(in: &cancellables)
     }

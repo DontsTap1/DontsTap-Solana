@@ -38,10 +38,11 @@ struct GameView: View {
 
 // MARK: - AR View Container
 
-class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
+class ARViewModel: NSObject, ObservableObject {
     @Inject
     private var coinStoreProvider: CoinCollectStoreProvider
     private var arView: ARView?
+    private var coachingOverlay: ARCoachingOverlayView?
 
     private var coinAREntity: CoinEntity?
     private var countRenderedCoins: Int = 0 {
@@ -73,8 +74,10 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
         coachingOverlay.session = view.session
         coachingOverlay.goal = .horizontalPlane
         coachingOverlay.delegate = self
-        coachingOverlay.activatesAutomatically = true
+        coachingOverlay.activatesAutomatically = false
+        coachingOverlay.setActive(true, animated: true)
         view.addSubview(coachingOverlay)
+        self.coachingOverlay = coachingOverlay
 
         print("### AR: overlay did add")
     }
@@ -173,12 +176,34 @@ class ARViewModel: NSObject, ObservableObject, ARCoachingOverlayViewDelegate {
         }
     }
 
+    deinit {
+        print("### AR: ARViewModel deinit")
+    }
+}
+
+extension ARViewModel: ARCoachingOverlayViewDelegate {
     func coachingOverlayViewDidDeactivate(_ coachingOverlayView: ARCoachingOverlayView) {
         spawnCoins()
     }
 
-    deinit {
-        print("### AR: ARViewModel deinit")
+    func coachingOverlayViewWillActivate(_ coachingOverlayView: ARCoachingOverlayView) {
+    }
+
+    func coachingOverlayViewDidRequestSessionReset(_ coachingOverlayView: ARCoachingOverlayView) {
+        coachingOverlayView.setActive(true, animated: true)
+    }
+
+    func dismissCoachingOverlay(withDelay: Bool) {
+        guard coachingOverlay?.isActive == true else { return }
+
+        if withDelay {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+                self?.coachingOverlay?.setActive(false, animated: true)
+            }
+        }
+        else {
+            coachingOverlay?.setActive(false, animated: true)
+        }
     }
 }
 
@@ -236,6 +261,7 @@ struct ARContainerView: UIViewRepresentable {
             for anchor in anchors {
                 if anchor is ARPlaneAnchor {
                     arViewModel.spawnCoins()
+                    arViewModel.dismissCoachingOverlay(withDelay: true)
                 }
             }
         }

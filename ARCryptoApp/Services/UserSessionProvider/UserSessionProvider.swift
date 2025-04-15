@@ -1,6 +1,7 @@
 import Combine
 import Foundation
 import UIKit
+import FirebaseStorage
 
 enum UserSessionError: Error, UserRepresentableError {
     case noExistingPhotoForUser
@@ -46,8 +47,8 @@ protocol UserSessionProvider {
     func getUserInfo() -> AnyPublisher<UserInfo, Never>
     func getUserInfo(ignoreCachedPhoto: Bool) -> AnyPublisher<UserInfo, Never>
     
-    func getUserPhoto() -> AnyPublisher<Data, Error>
-    func getUserPhoto(ignoreCachedPhoto: Bool) -> AnyPublisher<Data, Error>
+    func getUserPhoto() -> AnyPublisher<Data?, any Error>
+    func getUserPhoto(ignoreCachedPhoto: Bool) -> AnyPublisher<Data?, any Error>
 
     func addPromocode(_ promocode: Promocode) -> Bool
 
@@ -411,13 +412,13 @@ extension UserSessionService {
             .eraseToAnyPublisher()
     }
 
-    func getUserPhoto() -> AnyPublisher<Data, any Error> {
+    func getUserPhoto() -> AnyPublisher<Data?, any Error> {
         getUserPhoto(ignoreCachedPhoto: false)
     }
 
-    func getUserPhoto(ignoreCachedPhoto: Bool) -> AnyPublisher<Data, any Error> {
+    func getUserPhoto(ignoreCachedPhoto: Bool) -> AnyPublisher<Data?, any Error> {
         if !ignoreCachedPhoto, let userCachedPhotoData {
-            return Future<Data, Error> { promise in
+            return Future<Data?, Error> { promise in
                 promise(.success(userCachedPhotoData))
             }
             .eraseToAnyPublisher()
@@ -428,12 +429,21 @@ extension UserSessionService {
                 .eraseToAnyPublisher()
         }
 
-        let publisher = databaseProvider.getPhoto(photoId: photoId)
-        userPhotoDownloadCancellable = publisher
-            .sink(receiveCompletion: { _ in }) { [weak self] photoData in
-            self?.userCachedPhotoData = photoData
-        }
-        return publisher
+        return databaseProvider.getPhoto(photoId: photoId)
+            .map { Optional($0) }
+            .catch { error -> AnyPublisher<Data?, Error> in
+                if let storageError = error as? StorageError, storageError.isNotFoundError {
+                    return Just(nil)
+                        .setFailureType(to: Error.self)
+                        .eraseToAnyPublisher()
+                }
+                return Fail(error: error)
+                    .eraseToAnyPublisher()
+            }
+            .handleEvents(receiveOutput: { [weak self] photoData in
+                self?.userCachedPhotoData = photoData
+            })
+            .eraseToAnyPublisher()
     }
 
     func addPromocode(_ promocode: Promocode) -> Bool {
@@ -680,5 +690,30 @@ fileprivate extension User {
 
     static func createEmptyUser(id: String) -> User {
         return User(id: id)
+    }
+}
+
+private extension StorageError {
+    var isNotFoundError: Bool {
+        if case .objectNotFound = self,
+           let serverError = serverError,
+           let errorCode = serverError.first(where: { $0.key == "ResponseErrorCode" })?.value as? Int,
+           errorCode == 404 {
+            return true
+        }
+        return false
+    }
+    
+    private var serverError: [String: Any]? {
+        switch self {
+        case .objectNotFound(_, let serverError),
+             .unknown(_, let serverError),
+             .quotaExceeded(_, let serverError),
+             .unauthenticated(let serverError),
+             .unauthorized(_, _, let serverError):
+            return serverError
+        default:
+            return nil
+        }
     }
 }

@@ -14,55 +14,54 @@ struct SignInView: View {
     @State private var email = ""
     @State private var password = ""
     @StateObject private var viewModel = SignInViewModel()
+    private let descriptionText =
+    """
+    - Store your collected coins on cloud
+    - Get access to coin doubler
+    - Upload your photo
+    - Appear on the score record table
+    """
 
     var body: some View {
         NavigationStack {
-            NavigationView {
-                BackgroundGradientView {
-                    VStack {
-                        Spacer()
+            BackgroundGradientView {
+                VStack {
+                    Spacer()
 
-                        CoinAmountView()
+                    CoinAmountView()
+                        .padding(.top, 10)
 
-                        Spacer()
+                    Spacer()
 
-                        // Description text
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("After sign in you will be able:")
-                                .font(.title2)
-                                .bold()
-                                .foregroundColor(.white)
+                    // Description text
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("After sign in you will be able:")
+                            .font(.title2)
+                            .bold()
+                            .foregroundColor(.white)
 
-                            ForEach([
-                                "Store your collected coins on cloud",
-                                "Get access to coin doubler",
-                                "Upload your photo",
-                                "Appear on the score record table"
-                            ], id: \.self) { item in
-                                Text("- \(item)")
-                                    .font(.title2)
-                                    .foregroundColor(.white)
-                            }
-                        }
-                        .padding(.horizontal, 15)
-
-                        Spacer()
-
-                        // Sign in button
-                        SignInWithAppleButton(.signIn) { appleIdRequest in
-                            appleIdRequest.requestedScopes = [.email]
-                        } onCompletion: { result in
-                            viewModel.onAuthenticationRequest(result)
-                        }
-                        .signInWithAppleButtonStyle(.white)
-                        .frame(height: 50)
-                        .padding(.horizontal, 20)
+                        Text(descriptionText)
+                            .multilineTextAlignment(.leading)
+                            .font(.title2)
+                            .foregroundStyle(.white)
                     }
-                    .errorView(isPresented: $viewModel.showErrorAlert, error: GenericErrors.generic)
-                    .loadingView(isPresented: $viewModel.isLoading)
-                    .onAppear {
-                        viewModel.dismissEnvironmentVariable = dismiss
+                    .padding(.horizontal, 15)
+
+                    // Sign in button
+                    SignInWithAppleButton(.signIn) { appleIdRequest in
+                        appleIdRequest.requestedScopes = [.email]
+                    } onCompletion: { result in
+                        viewModel.onAuthenticationRequest(result)
                     }
+                    .signInWithAppleButtonStyle(.white)
+                    .frame(height: 50)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 15)
+                }
+                .errorView(isPresented: $viewModel.showErrorAlert, error: GenericErrors.generic)
+                .loadingView(isPresented: $viewModel.isLoading)
+                .onAppear {
+                    viewModel.dismissEnvironmentVariable = dismiss
                 }
             }
             .toolbar {
