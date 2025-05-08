@@ -2,6 +2,27 @@
 
 DontStap is an augmented reality (AR) cryptocurrency-themed mobile application allowing users to collect virtual coins in their real environment, create accounts, and manage their collected coins. The app combines AR technology with gamification elements to create an engaging coin collection experience.
 
+## Table of Contents
+
+- [Architecture Overview](#architecture-overview)
+  - [MVVM Architecture](#mvvm-architecture)
+  - [Dependency Injection](#dependency-injection)
+- [Core Features](#core-features)
+  - [Augmented Reality Experience](#augmented-reality-experience)
+  - [Coin Entity Design](#coin-entity-design)
+  - [User Authentication](#user-authentication)
+  - [User Account Management](#user-account-management)
+- [Data Management](#data-management)
+  - [Firebase Integration](#firebase-integration)
+  - [Database Provider](#database-provider)
+- [Reactive Programming](#reactive-programming)
+- [Security](#security)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Requirements](#requirements)
+- [Dependencies](#dependencies)
+- [Future Blockchain Integration](#future-blockchain-integration)
+
 ## Architecture Overview
 
 ### MVVM Architecture
