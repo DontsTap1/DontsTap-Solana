@@ -31,9 +31,22 @@ class MenuViewModel: ObservableObject {
     @Published var presentationAction: MenuViewAction?
     @Published var isPresentationActive = false
     @Published var showSignIn = false
+    @Published private(set) var isExchangeButtonVisible = false
+    @Published var availableMenuActionLoading = true
 
     @Inject
     var userSessionProvider: UserSessionProvider
+    
+    @Inject
+    var countryAvailabilityService: GuardarianCountryAvailabilityService
+
+    init() {
+        availableMenuActionLoading = true
+        Task { @MainActor in
+            isExchangeButtonVisible = await countryAvailabilityService.verifyCountrySupport()
+            availableMenuActionLoading = false
+        }
+    }
 
     func onMenuButtonTap(action: MenuViewAction) {
         presentationAction = action
@@ -49,6 +62,12 @@ class MenuViewModel: ObservableObject {
         if !userSessionProvider.isGuestUser,
            presentationAction != nil {
             isPresentationActive.toggle()
+        }
+    }
+    
+    var availableActions: [MenuViewAction] {
+        MenuViewAction.allCases.filter { action in
+            action != .openExchange || isExchangeButtonVisible
         }
     }
 }

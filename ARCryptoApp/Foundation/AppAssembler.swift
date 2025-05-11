@@ -62,6 +62,10 @@ class AppAssembler {
             container.register(PromocodeStoreProvider.self) { resolver in
                 return PromocodeStore()
             }
+
+            container.register(GuardarianCountryAvailabilityService.self) { _ in
+                return GuardarianCountryAvailabilityService()
+            }
         }
     }
 

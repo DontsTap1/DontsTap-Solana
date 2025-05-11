@@ -65,42 +65,54 @@ struct MenuView: View {
 
                 Spacer()
 
-                HStack(spacing: 30) {
-                    ForEach(MenuViewModel.MenuViewAction.allCases, id: \.rawValue) { action in
-                        Button(action: {
-                            viewModel.onMenuButtonTap(action: action)
-                        }) {
-                            switch action {
-                                case .openProfile:
-                                    Image(systemName: "person.crop.circle.fill")
-                                        .resizable()
-                                        .foregroundColor(Color.menuColors)
-                                        .frame(width: 60, height: 60)
-                                        .shadow(radius: 5.0)
-                                case .openDoubleCoin:
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color.menuColors)
+                if viewModel.availableMenuActionLoading {
+                    RoundedRectangle(cornerRadius: 5.0)
+                        .foregroundStyle(Color.menuColors)
+                        .blur(radius: 3.0)
+                        .frame(width: 330, height: 60)
+                        .overlay {
+                            ProgressView()
+                                .tint(Color.white)
+                        }
+                }
+                else {
+                    HStack(spacing: 30) {
+                        ForEach(viewModel.availableActions, id: \.rawValue) { action in
+                            Button(action: {
+                                viewModel.onMenuButtonTap(action: action)
+                            }) {
+                                switch action {
+                                    case .openProfile:
+                                        Image(systemName: "person.crop.circle.fill")
+                                            .resizable()
+                                            .foregroundColor(Color.menuColors)
                                             .frame(width: 60, height: 60)
                                             .shadow(radius: 5.0)
+                                    case .openDoubleCoin:
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.menuColors)
+                                                .frame(width: 60, height: 60)
+                                                .shadow(radius: 5.0)
 
-                                        Text("X2")
-                                            .font(.title3)
-                                            .bold()
-                                            .foregroundColor(Color.gradientColorTwo)
-                                    }
-                                case .openCashout:
-                                    Image(systemName: "dollarsign.circle.fill")
-                                        .resizable()
-                                        .foregroundColor(Color.menuColors)
-                                        .frame(width: 60, height: 60)
-                                        .shadow(radius: 5.0)
-                                case .openExchange:
-                                    Image(systemName: "bitcoinsign.circle.fill")
-                                        .resizable()
-                                        .foregroundColor(Color.menuColors)
-                                        .frame(width: 60, height: 60)
-                                        .shadow(radius: 5.0)
+                                            Text("X2")
+                                                .font(.title3)
+                                                .bold()
+                                                .foregroundColor(Color.gradientColorTwo)
+                                        }
+                                    case .openCashout:
+                                        Image(systemName: "dollarsign.circle.fill")
+                                            .resizable()
+                                            .foregroundColor(Color.menuColors)
+                                            .frame(width: 60, height: 60)
+                                            .shadow(radius: 5.0)
+                                    case .openExchange:
+                                        Image(systemName: "bitcoinsign.circle.fill")
+                                            .resizable()
+                                            .foregroundColor(Color.menuColors)
+                                            .frame(width: 60, height: 60)
+                                            .shadow(radius: 5.0)
+                                }
                             }
                         }
                     }
